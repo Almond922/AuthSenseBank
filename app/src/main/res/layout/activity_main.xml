@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="@color/navy_dark"
+        android:background="@color/white"
         android:gravity="center_vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -26,18 +26,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
-                android:textColor="@color/gold"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:fontFamily="serif" />
+                android:fontFamily="sans-serif-medium" />
 
             <TextView
                 android:id="@+id/tv_user_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="User Profile"
-                android:textColor="@color/text_grey"
-                android:textSize="11sp" />
+                android:text="Good Morning, User"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <TextView
@@ -45,9 +45,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Logout"
-            android:textColor="@color/gold"
+            android:textColor="@color/text_primary"
             android:textSize="13sp"
-            android:background="@drawable/bg_gold_outline"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:paddingTop="6dp"
@@ -67,9 +66,10 @@
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/navy_dark"
-        app:itemIconTint="@drawable/nav_color_selector"
-        app:itemTextColor="@drawable/nav_color_selector"
+        android:background="@color/white"
+        app:elevation="8dp"
+        app:itemIconTint="@color/text_primary"
+        app:itemTextColor="@color/text_primary"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled" />
 

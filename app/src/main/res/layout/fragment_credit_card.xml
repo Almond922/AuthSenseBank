@@ -1,26 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/off_white">
+    android:background="@color/white">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Our Credit Cards"
-        android:textColor="@color/navy_dark"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:fontFamily="serif"
-        android:padding="20dp" />
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_credit_cards"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:clipToPadding="false" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Credit Cards"
+            android:textColor="@color/text_primary"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="24dp" />
 
-</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Choose a card that fits your lifestyle"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="16dp" />
+
+        <!-- RANGE SLIDER SECTION -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select your preferred credit limit"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/limit_slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="50000"
+                android:valueTo="500000"
+                android:stepSize="50000"
+                android:value="100000"
+                app:thumbColor="@color/primary"
+                app:trackColorActive="@color/primary"
+                app:labelBehavior="withinBounds" />
+
+            <TextView
+                android:id="@+id/tv_limit_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Limit: ₹1,00,000"
+                android:textColor="@color/primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_credit_cards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:clipToPadding="false" />
+
+        <!-- BENEFITS SECTION -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:layout_marginTop="32dp"
+            android:background="#F9F9F9">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Benefits Section"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Our credit cards are designed to provide maximum rewards and flexibility. You earn reward points on every purchase, which can be redeemed for travel, shopping, and cashback offers.\n\nEnjoy exclusive airport lounge access, dining discounts, and EMI conversion options. With advanced fraud detection and instant alerts, your transactions remain secure at all times.\n\nResponsible credit usage improves your financial credibility and increases your chances of higher credit limits and premium offers."
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp"
+                android:lineSpacingExtra="6dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Additional Information\n\nAll card applications are subject to credit appraisal and verification. Please ensure all documents are valid. You can track your application status in the 'More' section of the home tab. Interest rates and charges are subject to change as per bank policy."
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

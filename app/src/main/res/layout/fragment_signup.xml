@@ -2,291 +2,152 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/off_white">
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="28dp">
+        android:padding="32dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create Account ✨"
-            android:textColor="@color/navy_dark"
-            android:textSize="24sp"
+            android:text="Create Account"
+            android:textColor="@color/text_primary"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:fontFamily="serif"
-            android:paddingBottom="6dp" />
+            android:fontFamily="sans-serif-medium" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Join AuthSense Bank in minutes"
-            android:textColor="@color/text_grey"
-            android:textSize="13sp"
-            android:paddingBottom="24dp" />
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
 
-        <!-- Full Name -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Full Name"
-            android:textColor="@color/navy_dark"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
-
+        <!-- Form Fields -->
         <EditText
             android:id="@+id/et_fullname"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:hint="e.g. Rupa Sharma"
+            android:layout_height="56dp"
+            android:hint="Full Name"
             android:inputType="textPersonName"
-            android:background="@drawable/bg_input"
+            android:background="@drawable/bg_search_field"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textSize="14sp"
-            android:textColor="@color/navy_dark"
-            android:textColorHint="@color/text_grey"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Email -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email Address"
-            android:textColor="@color/navy_dark"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="32dp" />
 
         <EditText
             android:id="@+id/et_email"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:hint="example@email.com"
+            android:layout_height="56dp"
+            android:hint="Email Address"
             android:inputType="textEmailAddress"
-            android:background="@drawable/bg_input"
+            android:background="@drawable/bg_search_field"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textSize="14sp"
-            android:textColor="@color/navy_dark"
-            android:textColorHint="@color/text_grey"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Phone -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mobile Number"
-            android:textColor="@color/navy_dark"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="12dp" />
 
         <EditText
             android:id="@+id/et_phone"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:hint="+91 9876543210"
+            android:layout_height="56dp"
+            android:hint="Mobile Number"
             android:inputType="phone"
-            android:background="@drawable/bg_input"
+            android:background="@drawable/bg_search_field"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textSize="14sp"
-            android:textColor="@color/navy_dark"
-            android:textColorHint="@color/text_grey"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Date of Birth -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Date of Birth"
-            android:textColor="@color/navy_dark"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
-
-        <EditText
-            android:id="@+id/et_dob"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:hint="DD / MM / YYYY"
-            android:inputType="date"
-            android:background="@drawable/bg_input"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="14sp"
-            android:textColor="@color/navy_dark"
-            android:textColorHint="@color/text_grey"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Aadhaar -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Aadhaar Number"
-            android:textColor="@color/navy_dark"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="12dp" />
 
         <EditText
             android:id="@+id/et_aadhaar"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:hint="XXXX XXXX XXXX"
+            android:layout_height="56dp"
+            android:hint="Aadhaar Number"
             android:inputType="number"
             android:maxLength="12"
-            android:background="@drawable/bg_input"
+            android:background="@drawable/bg_search_field"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textSize="14sp"
-            android:textColor="@color/navy_dark"
-            android:textColorHint="@color/text_grey"
-            android:layout_marginBottom="16dp" />
-
-        <!-- PAN -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="PAN Number"
-            android:textColor="@color/navy_dark"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
-
-        <EditText
-            android:id="@+id/et_pan"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:hint="ABCDE1234F"
-            android:inputType="textCapCharacters"
-            android:maxLength="10"
-            android:background="@drawable/bg_input"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="14sp"
-            android:textColor="@color/navy_dark"
-            android:textColorHint="@color/text_grey"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Password -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Set Password"
-            android:textColor="@color/navy_dark"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="12dp" />
 
         <EditText
             android:id="@+id/et_new_password"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:hint="Min 8 characters"
+            android:layout_height="56dp"
+            android:hint="Set Password"
             android:inputType="textPassword"
-            android:background="@drawable/bg_input"
+            android:background="@drawable/bg_search_field"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textSize="14sp"
-            android:textColor="@color/navy_dark"
-            android:textColorHint="@color/text_grey"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Confirm Password -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Confirm Password"
-            android:textColor="@color/navy_dark"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="12dp" />
 
         <EditText
             android:id="@+id/et_confirm_password"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:hint="Re-enter password"
+            android:layout_height="56dp"
+            android:hint="Confirm Password"
             android:inputType="textPassword"
-            android:background="@drawable/bg_input"
+            android:background="@drawable/bg_search_field"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textSize="14sp"
-            android:textColor="@color/navy_dark"
-            android:textColorHint="@color/text_grey"
-            android:layout_marginBottom="16dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="12dp" />
 
-        <!-- Terms Checkbox -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <CheckBox
+            android:id="@+id/cb_terms"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:text="I agree to the Terms &amp; Conditions"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:layout_marginTop="16dp" />
 
-            <CheckBox
-                android:id="@+id/cb_terms"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="@color/gold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="I agree to the "
-                android:textColor="@color/text_grey"
-                android:textSize="12sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Terms &amp; Conditions"
-                android:textColor="@color/gold"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Submit Button -->
-        <TextView
+        <Button
             android:id="@+id/btn_create_account"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="Create My Account →"
-            android:textColor="@color/navy_dark"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:background="@drawable/bg_apply_btn"
-            android:layout_marginBottom="20dp" />
+            android:layout_height="56dp"
+            android:text="Create My Account"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary"
+            android:layout_marginTop="24dp" />
 
-        <!-- Already have account -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
+            android:layout_marginTop="24dp"
             android:paddingBottom="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Already have an account? "
-                android:textColor="@color/text_grey"
-                android:textSize="13sp" />
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tv_go_signin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sign In"
-                android:textColor="@color/gold"
-                android:textSize="13sp"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
 

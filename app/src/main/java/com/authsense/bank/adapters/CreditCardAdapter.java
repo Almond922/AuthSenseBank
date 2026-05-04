@@ -23,6 +23,12 @@ public class CreditCardAdapter extends RecyclerView.Adapter<CreditCardAdapter.Ca
         this.cards = cards;
     }
 
+    public void updateList(List<CardData> newList) {
+        this.cards.clear();
+        this.cards.addAll(newList);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -39,8 +45,7 @@ public class CreditCardAdapter extends RecyclerView.Adapter<CreditCardAdapter.Ca
         holder.cardFee.setText(card.annualFee);
         holder.cardLimit.setText(card.creditLimit);
         holder.cardBenefits.setText(card.benefits);
-        holder.cardEmoji.setText(card.emoji);
-        holder.cardBg.setBackgroundColor((int) card.bgColor);
+        // Removed emoji binding
         holder.btnApply.setOnClickListener(v ->
                 Toast.makeText(context, "Applying for " + card.name + "...", Toast.LENGTH_SHORT).show());
     }
@@ -52,7 +57,8 @@ public class CreditCardAdapter extends RecyclerView.Adapter<CreditCardAdapter.Ca
 
     public static class CardViewHolder extends RecyclerView.ViewHolder {
         LinearLayout cardBg;
-        TextView cardEmoji, cardName, cardType, cardBadge, cardFee, cardLimit, cardBenefits, btnApply;
+        View cardEmoji; // Changed from TextView to View
+        TextView cardName, cardType, cardBadge, cardFee, cardLimit, cardBenefits, btnApply;
 
         public CardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,11 +78,13 @@ public class CreditCardAdapter extends RecyclerView.Adapter<CreditCardAdapter.Ca
     public static class CardData {
         public String name, type, badge, annualFee, creditLimit, benefits, emoji;
         public long bgColor;
+        public int numericLimit;
 
         public CardData(String name, String type, String badge, String annualFee,
-                        String creditLimit, String benefits, long bgColor, String emoji) {
+                        String creditLimit, int numericLimit, String benefits, long bgColor, String emoji) {
             this.name = name; this.type = type; this.badge = badge;
             this.annualFee = annualFee; this.creditLimit = creditLimit;
+            this.numericLimit = numericLimit;
             this.benefits = benefits; this.bgColor = bgColor; this.emoji = emoji;
         }
     }
