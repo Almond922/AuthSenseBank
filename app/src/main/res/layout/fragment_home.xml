@@ -1,241 +1,320 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/off_white">
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <!-- IMAGE CAROUSEL -->
+        <!-- HEADER SECTION -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome back, Guest"
+                android:textColor="@color/text_primary"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last login: Today, 10:42 AM"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Account Status: Active &amp; Secure"
+                android:textColor="#2E7D32"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- ACCOUNT SUMMARY -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/divider">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:background="@color/white">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Available Balance"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹1,24,560.75"
+                    android:textColor="@color/text_primary"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="8dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginVertical="20dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Savings Account"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹98,200.00"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Current Account"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹26,360.75"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- QUICK ACTIONS GRID -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quick Actions"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:layout_marginTop="16dp"
+            android:alignmentMode="alignMargins">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="12dp">
+                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Send Money" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="12dp">
+                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pay Bills" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="12dp">
+                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Recharge" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="12dp">
+                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Scan &amp; Pay" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="12dp">
+                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Request" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="12dp">
+                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="More" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
+            </LinearLayout>
+        </GridLayout>
+
+        <!-- RECENT TRANSACTIONS -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recent Transactions"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:background="@color/white"
+            android:paddingHorizontal="16dp">
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Amazon Purchase – ₹2,499" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="UPI Transfer to Rahul – ₹500" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Netflix Subscription – ₹649" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Salary Credit – ₹45,000" android:paddingVertical="14dp" android:textColor="#2E7D32" android:textStyle="bold" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Electricity Bill – ₹1,200" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Grocery Store – ₹2,150" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Swiggy Order – ₹320" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Fuel Payment – ₹1,800" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Gym Membership – ₹1,999" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mobile Recharge – ₹299" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- INSIGHTS SECTION -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Financial Insights"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Your spending this month shows a 12% increase compared to last month. The majority of your expenses fall under food delivery, subscriptions, and fuel. You may consider optimizing recurring subscriptions to reduce unnecessary expenses.\n\nBased on your transaction history, you are eligible for a personalized loan offer with low interest rates. Maintaining a stable balance and reducing high-frequency small transactions may improve your financial health score.\n\nWe recommend setting up automatic savings to achieve your long-term goals. Small, consistent contributions can significantly improve your financial stability over time."
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp"
+            android:lineSpacingExtra="6dp" />
+
+        <!-- QUICK ASSIST / USER INPUT -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quick Assist"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp" />
+
+        <EditText
+            android:id="@+id/et_user_query"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_search_field"
+            android:hint="What would you like to do today?"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif" />
+
+        <!-- CAROUSEL -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/carousel"
             android:layout_width="match_parent"
-            android:layout_height="220dp" />
+            android:layout_height="180dp"
+            android:layout_marginTop="40dp" />
 
-        <!-- CAROUSEL DOTS -->
         <LinearLayout
             android:id="@+id/dots_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
+            android:paddingTop="12dp" />
 
-        <!-- PRODUCTS & SERVICES TITLE -->
-        <TextView
+        <!-- SPACER FOR NAVIGATION BAR -->
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Our Products &amp; Services"
-            android:textColor="@color/navy_dark"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:fontFamily="serif"
-            android:paddingStart="20dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="12dp" />
-
-        <!-- PRODUCTS GRID -->
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <!-- Card 1 -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="120dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/navy_mid"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="💳"
-                        android:textSize="28sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Credit Cards"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:paddingTop="6dp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Card 2 -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="120dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/card_green"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🏦"
-                        android:textSize="28sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Savings Account"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:paddingTop="6dp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Card 3 -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="120dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/card_blue"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📈"
-                        android:textSize="28sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Investments"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:paddingTop="6dp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Card 4 -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="120dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/card_dark"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🏠"
-                        android:textSize="28sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Home Loans"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:paddingTop="6dp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-        </GridLayout>
-
-        <!-- FOOTER -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/navy_dark"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:layout_marginTop="24dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AuthSense Bank"
-                android:textColor="@color/gold"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Banking Redefined for the Future"
-                android:textColor="@color/text_grey"
-                android:textSize="13sp"
-                android:paddingTop="4dp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/card_blue"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📞  1800-AUTH-BANK  |  📧  support@authsense.com"
-                android:textColor="@color/text_grey"
-                android:textSize="12sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="© 2025 AuthSense Bank. All Rights Reserved."
-                android:textColor="@color/text_grey"
-                android:textSize="11sp"
-                android:paddingTop="12dp" />
-        </LinearLayout>
+            android:layout_height="80dp" />
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

@@ -1,82 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="6dp">
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/divider">
 
     <LinearLayout
         android:id="@+id/card_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="24dp"
+        android:background="@color/white">
 
         <!-- Card Type + Name -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/card_emoji"
+                android:id="@+id/card_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="💳"
-                android:textSize="32sp" />
+                android:text="AuthSense Platinum"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium" />
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/card_type"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingStart="12dp">
-
-                <TextView
-                    android:id="@+id/card_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="AuthSense Platinum"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:fontFamily="serif" />
-
-                <TextView
-                    android:id="@+id/card_type"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="VISA"
-                    android:textColor="#CCCCCC"
-                    android:textSize="12sp"
-                    android:paddingTop="2dp" />
-            </LinearLayout>
+                android:text="VISA PLATINUM"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:letterSpacing="0.1"
+                android:paddingTop="4dp" />
 
             <TextView
                 android:id="@+id/card_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PREMIUM"
-                android:textColor="@color/gold"
+                android:text="PREMIUM SELECTION"
+                android:textColor="@color/text_primary"
                 android:textSize="10sp"
                 android:textStyle="bold"
-                android:background="@drawable/bg_badge"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp" />
+                android:letterSpacing="0.05"
+                android:paddingTop="4dp" />
+
+            <!-- Removed emoji placeholder -->
+            <View
+                android:id="@+id/card_emoji"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#44FFFFFF"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp" />
+            android:background="@color/divider"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp" />
 
         <!-- Annual Fee & Limit -->
         <LinearLayout
@@ -94,16 +88,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="ANNUAL FEE"
-                    android:textColor="#AAAAAA"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05" />
 
                 <TextView
                     android:id="@+id/card_fee"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="₹5,000"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingTop="4dp" />
@@ -119,60 +114,56 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="CREDIT LIMIT"
-                    android:textColor="#AAAAAA"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05" />
 
                 <TextView
                     android:id="@+id/card_limit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Up to ₹10L"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingTop="4dp" />
             </LinearLayout>
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#44FFFFFF"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="12dp" />
-
         <!-- Features -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="KEY BENEFITS"
-            android:textColor="#AAAAAA"
-            android:textSize="10sp"
+            android:text="BENEFITS"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
             android:textStyle="bold"
-            android:paddingBottom="8dp" />
+            android:layout_marginTop="20dp"
+            android:letterSpacing="0.05" />
 
         <TextView
             android:id="@+id/card_benefits"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="✓ 5X rewards on dining\n✓ Airport lounge access\n✓ Zero foreign transaction fee\n✓ Complimentary travel insurance"
-            android:textColor="#DDDDDD"
-            android:textSize="13sp"
+            android:text="Complimentary airport lounge access worldwide.\n5X Reward points on all international spends.\nZero fuel surcharge across all petrol pumps in India.\nComprehensive travel insurance coverage up to ₹50 Lakhs."
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"
             android:lineSpacingExtra="4dp" />
 
         <!-- Apply Button -->
-        <TextView
+        <Button
             android:id="@+id/btn_apply"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Apply Now →"
-            android:textColor="@color/navy_dark"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:background="@drawable/bg_apply_btn"
-            android:layout_marginTop="16dp" />
+            android:layout_height="56dp"
+            android:text="Request This Card"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary"
+            android:layout_marginTop="24dp"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

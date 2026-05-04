@@ -3,24 +3,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/off_white">
+    android:background="@color/white">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="📰 Latest News"
-        android:textColor="@color/navy_dark"
-        android:textSize="22sp"
+        android:text="Latest News"
+        android:textColor="@color/text_primary"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:fontFamily="serif"
-        android:padding="20dp" />
+        android:fontFamily="sans-serif-medium"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="24dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stay updated with the latest in finance"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:paddingHorizontal="24dp"
+        android:paddingBottom="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_news"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:clipToPadding="false" />
+        android:clipToPadding="false"
+        android:paddingBottom="24dp" />
 
 </LinearLayout>
