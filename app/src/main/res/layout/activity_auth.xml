@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/navy_dark">
+    android:background="@color/primary">
 
     <!-- Logo Area -->
     <LinearLayout
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="AuthSense Bank"
-            android:textColor="@color/gold"
+            android:textColor="@color/accent"
             android:textSize="26sp"
             android:textStyle="bold"
             android:fontFamily="serif"
@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Secure. Smart. Seamless."
-            android:textColor="@color/text_grey"
+            android:textColor="@color/divider"
             android:textSize="13sp"
             android:paddingTop="4dp" />
     </LinearLayout>
@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:orientation="horizontal"
-        android:background="@color/navy_mid"
+        android:background="@color/primary_light"
         android:weightSum="2">
 
         <TextView
@@ -54,10 +54,10 @@
             android:layout_weight="1"
             android:text="Sign In"
             android:gravity="center"
-            android:textColor="@color/gold"
+            android:textColor="@color/accent"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:background="@color/navy_dark" />
+            android:background="@color/primary" />
 
         <TextView
             android:id="@+id/tab_signup"
@@ -66,9 +66,9 @@
             android:layout_weight="1"
             android:text="Sign Up"
             android:gravity="center"
-            android:textColor="@color/text_grey"
+            android:textColor="@color/divider"
             android:textSize="15sp"
-            android:background="@color/navy_mid" />
+            android:background="@color/primary_light" />
     </LinearLayout>
 
     <!-- Form Container -->
@@ -76,6 +76,6 @@
         android:id="@+id/auth_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/off_white" />
+        android:background="@color/background" />
 
 </LinearLayout>

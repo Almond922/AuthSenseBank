@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Credit Cards"
+            android:text="@string/title_credit_cards"
             android:textColor="@color/text_primary"
             android:textSize="28sp"
             android:textStyle="bold"
@@ -25,7 +25,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Choose a card that fits your lifestyle"
+            android:text="@string/subtitle_credit_cards"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:paddingHorizontal="24dp"
@@ -43,7 +43,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select your preferred credit limit"
+                android:text="@string/label_select_limit"
                 android:textColor="@color/text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -56,16 +56,16 @@
                 android:valueTo="500000"
                 android:stepSize="50000"
                 android:value="100000"
-                app:thumbColor="@color/primary"
-                app:trackColorActive="@color/primary"
+                app:thumbColor="@color/accent"
+                app:trackColorActive="@color/accent"
                 app:labelBehavior="withinBounds" />
 
             <TextView
                 android:id="@+id/tv_limit_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Limit: ₹1,00,000"
-                android:textColor="@color/primary"
+                android:text="@string/credit_limit_label"
+                android:textColor="@color/accent"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_gravity="center_horizontal" />
@@ -85,12 +85,12 @@
             android:orientation="vertical"
             android:padding="24dp"
             android:layout_marginTop="32dp"
-            android:background="#F9F9F9">
+            android:background="@color/white">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Benefits Section"
+                android:text="@string/benefits_section_title"
                 android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -99,7 +99,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Our credit cards are designed to provide maximum rewards and flexibility. You earn reward points on every purchase, which can be redeemed for travel, shopping, and cashback offers.\n\nEnjoy exclusive airport lounge access, dining discounts, and EMI conversion options. With advanced fraud detection and instant alerts, your transactions remain secure at all times.\n\nResponsible credit usage improves your financial credibility and increases your chances of higher credit limits and premium offers."
+                android:text="@string/benefits_description"
                 android:textColor="@color/text_secondary"
                 android:textSize="15sp"
                 android:lineSpacingExtra="6dp" />
@@ -108,7 +108,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Additional Information\n\nAll card applications are subject to credit appraisal and verification. Please ensure all documents are valid. You can track your application status in the 'More' section of the home tab. Interest rates and charges are subject to change as per bank policy."
+                android:text="@string/additional_info"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:lineSpacingExtra="4dp" />

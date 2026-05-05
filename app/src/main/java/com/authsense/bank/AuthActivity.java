@@ -50,9 +50,9 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void setActiveTab(TextView active, TextView inactive) {
-        active.setBackgroundColor(getResources().getColor(R.color.navy_dark));
-        active.setTextColor(getResources().getColor(R.color.gold));
-        inactive.setBackgroundColor(getResources().getColor(R.color.navy_mid));
-        inactive.setTextColor(getResources().getColor(R.color.text_grey));
+        active.setBackgroundColor(androidx.core.content.ContextCompat.getColor(this, R.color.primary));
+        active.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.accent));
+        inactive.setBackgroundColor(androidx.core.content.ContextCompat.getColor(this, R.color.primary_light));
+        inactive.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.divider));
     }
 }

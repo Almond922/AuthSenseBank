@@ -14,7 +14,7 @@ import java.util.List;
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> {
 
     private final Context context;
-    private final List<NewsItem> newsList;
+    private List<NewsItem> newsList;
 
     public NewsAdapter(Context context, List<NewsItem> newsList) {
         this.context = context;
@@ -41,6 +41,11 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
 
     @Override
     public int getItemCount() { return newsList.size(); }
+
+    public void updateList(List<NewsItem> newList) {
+        this.newsList = newList;
+        notifyDataSetChanged();
+    }
 
     public static class NewsViewHolder extends RecyclerView.ViewHolder {
         TextView tag, date, headline, summary, readMore;

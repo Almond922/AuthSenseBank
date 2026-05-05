@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/background">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Latest News"
+        android:text="@string/latest_news"
         android:textColor="@color/text_primary"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -19,11 +19,24 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Stay updated with the latest in finance"
+        android:text="@string/news_stay_updated"
         android:textColor="@color/text_secondary"
         android:textSize="14sp"
         android:paddingHorizontal="24dp"
         android:paddingBottom="16dp" />
+
+    <EditText
+        android:id="@+id/et_search_news"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_search_field"
+        android:hint="@string/news_search_hint"
+        android:inputType="text"
+        android:autofillHints="none"
+        android:padding="12dp"
+        android:textSize="14sp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_news"
