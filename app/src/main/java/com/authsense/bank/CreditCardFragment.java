@@ -1,5 +1,7 @@
 package com.authsense.bank;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,21 +14,42 @@ import com.google.android.material.slider.Slider;
 import com.authsense.bank.adapters.CreditCardAdapter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CreditCardFragment extends Fragment {
 
     private CreditCardAdapter adapter;
     private List<CreditCardAdapter.CardData> allCards;
     private TextView tvLimitValue;
+    private SharedPreferences prefs;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_credit_card, container, false);
 
+        prefs = requireActivity().getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        String userEmail = prefs.getString("user_email", "");
+        String savingsStr = prefs.getString("savings_" + userEmail, "0.00");
+        String currentStr = prefs.getString("current_" + userEmail, "0.00");
+
+        double totalBalance = 0;
+        try {
+            totalBalance = Double.parseDouble(savingsStr) + Double.parseDouble(currentStr);
+        } catch (NumberFormatException e) {
+            // Default 0
+        }
+
         RecyclerView rv = view.findViewById(R.id.rv_credit_cards);
         tvLimitValue = view.findViewById(R.id.tv_limit_value);
         Slider slider = view.findViewById(R.id.limit_slider);
+
+        // Recommend limit based on 2x total balance, capped between slider min/max
+        int recommendedLimit = (int) (totalBalance * 2);
+        if (recommendedLimit < 50000) recommendedLimit = 50000;
+        if (recommendedLimit > 500000) recommendedLimit = 500000;
+        // Round to nearest 50000 (step size)
+        recommendedLimit = (recommendedLimit / 50000) * 50000;
+
+        slider.setValue(recommendedLimit);
 
         allCards = getCardList();
         adapter = new CreditCardAdapter(requireContext(), new ArrayList<>(allCards));
@@ -36,12 +59,13 @@ public class CreditCardFragment extends Fragment {
 
         slider.addOnChangeListener((s, value, fromUser) -> {
             int selectedLimit = (int) value;
-            tvLimitValue.setText("Limit: ₹" + String.format("%, d", selectedLimit).trim());
+            tvLimitValue.setText(getString(R.string.credit_limit_label, String.format("%,d", selectedLimit).trim()));
             filterCards(selectedLimit);
         });
 
         // Initial filter
-        filterCards((int) slider.getValue());
+        tvLimitValue.setText(getString(R.string.credit_limit_label, String.format("%,d", recommendedLimit).trim()));
+        filterCards(recommendedLimit);
 
         return view;
     }

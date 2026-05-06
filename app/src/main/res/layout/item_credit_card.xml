@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="24dp"
-        android:background="@color/white">
+        android:background="@color/primary">
 
         <!-- Card Type + Name -->
         <LinearLayout
@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="AuthSense Platinum"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium" />
@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="VISA PLATINUM"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/accent"
                 android:textSize="12sp"
                 android:letterSpacing="0.1"
                 android:paddingTop="4dp" />
@@ -50,7 +50,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="PREMIUM SELECTION"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/accent_light"
                 android:textSize="10sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.05"
@@ -68,7 +68,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/divider"
+            android:background="@color/primary_light"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp" />
 
@@ -88,7 +88,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="ANNUAL FEE"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="@color/divider"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.05" />
@@ -98,7 +98,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="₹5,000"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingTop="4dp" />
@@ -114,7 +114,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="CREDIT LIMIT"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="@color/divider"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.05" />
@@ -124,7 +124,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Up to ₹10L"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingTop="4dp" />
@@ -136,7 +136,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="BENEFITS"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/divider"
             android:textSize="11sp"
             android:textStyle="bold"
             android:layout_marginTop="20dp"
@@ -147,7 +147,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Complimentary airport lounge access worldwide.\n5X Reward points on all international spends.\nZero fuel surcharge across all petrol pumps in India.\nComprehensive travel insurance coverage up to ₹50 Lakhs."
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/background"
             android:textSize="14sp"
             android:layout_marginTop="8dp"
             android:lineSpacingExtra="4dp" />
@@ -159,8 +159,8 @@
             android:layout_height="56dp"
             android:text="Request This Card"
             android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/primary"
+            android:textColor="@color/primary"
+            android:backgroundTint="@color/accent"
             android:layout_marginTop="24dp"
             android:textSize="15sp"
             android:textStyle="bold" />

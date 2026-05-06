@@ -19,6 +19,7 @@
             android:layout_marginBottom="24dp">
 
             <TextView
+                android:id="@+id/tv_welcome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Welcome back, Guest"
@@ -27,6 +28,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tv_last_login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Last login: Today, 10:42 AM"
@@ -38,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Account Status: Active &amp; Secure"
-                android:textColor="#2E7D32"
+                android:textColor="@color/success"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:layout_marginTop="2dp" />
@@ -69,6 +71,7 @@
                     android:letterSpacing="0.05" />
 
                 <TextView
+                    android:id="@+id/tv_total_balance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="₹1,24,560.75"
@@ -99,6 +102,7 @@
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
                         <TextView
+                            android:id="@+id/tv_savings_balance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="₹98,200.00"
@@ -119,6 +123,7 @@
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
                         <TextView
+                            android:id="@+id/tv_current_balance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="₹26,360.75"
@@ -149,68 +154,122 @@
             android:alignmentMode="alignMargins">
 
             <LinearLayout
+                android:id="@+id/btn_send_money"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
                 android:padding="12dp">
-                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_send"
+                    android:background="@drawable/bg_search_field"
+                    android:padding="12dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Send Money" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btn_pay_bills"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
                 android:padding="12dp">
-                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_bill"
+                    android:background="@drawable/bg_search_field"
+                    android:padding="12dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pay Bills" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btn_recharge"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
                 android:padding="12dp">
-                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_recharge"
+                    android:background="@drawable/bg_search_field"
+                    android:padding="12dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Recharge" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btn_scan_pay"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
                 android:padding="12dp">
-                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_scan"
+                    android:background="@drawable/bg_search_field"
+                    android:padding="12dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Scan &amp; Pay" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btn_request"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
                 android:padding="12dp">
-                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_request"
+                    android:background="@drawable/bg_search_field"
+                    android:padding="12dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Request" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btn_more"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
                 android:padding="12dp">
-                <View android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/bg_search_field" />
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_more"
+                    android:background="@drawable/bg_search_field"
+                    android:padding="12dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="More" android:textSize="12sp" android:layout_marginTop="8dp" android:textColor="@color/text_primary" />
             </LinearLayout>
         </GridLayout>
@@ -226,32 +285,14 @@
             android:layout_marginTop="32dp" />
 
         <LinearLayout
+            android:id="@+id/ll_transactions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginTop="16dp"
             android:background="@color/white"
             android:paddingHorizontal="16dp">
-
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Amazon Purchase – ₹2,499" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="UPI Transfer to Rahul – ₹500" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Netflix Subscription – ₹649" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Salary Credit – ₹45,000" android:paddingVertical="14dp" android:textColor="#2E7D32" android:textStyle="bold" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Electricity Bill – ₹1,200" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Grocery Store – ₹2,150" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Swiggy Order – ₹320" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Fuel Payment – ₹1,800" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Gym Membership – ₹1,999" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mobile Recharge – ₹299" android:paddingVertical="14dp" android:textColor="@color/text_primary" android:textSize="14sp" />
+            <!-- Dynamic transactions will be added here -->
         </LinearLayout>
 
         <!-- INSIGHTS SECTION -->
@@ -265,10 +306,11 @@
             android:layout_marginTop="32dp" />
 
         <TextView
+            android:id="@+id/tv_insights"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Your spending this month shows a 12% increase compared to last month. The majority of your expenses fall under food delivery, subscriptions, and fuel. You may consider optimizing recurring subscriptions to reduce unnecessary expenses.\n\nBased on your transaction history, you are eligible for a personalized loan offer with low interest rates. Maintaining a stable balance and reducing high-frequency small transactions may improve your financial health score.\n\nWe recommend setting up automatic savings to achieve your long-term goals. Small, consistent contributions can significantly improve your financial stability over time."
+            android:text="Loading insights..."
             android:textColor="@color/text_secondary"
             android:textSize="15sp"
             android:lineSpacingExtra="6dp" />

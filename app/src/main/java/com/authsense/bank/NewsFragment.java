@@ -1,9 +1,13 @@
 package com.authsense.bank;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,15 +16,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NewsFragment extends Fragment {
+
+    private NewsAdapter adapter;
+    private List<NewsAdapter.NewsItem> allNews;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news, container, false);
 
         RecyclerView rv = view.findViewById(R.id.rv_news);
+        EditText etSearch = view.findViewById(R.id.et_search_news);
+
+        allNews = getNewsList();
+        adapter = new NewsAdapter(requireContext(), new ArrayList<>(allNews));
+
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
-        rv.setAdapter(new NewsAdapter(requireContext(), getNewsList()));
+        rv.setAdapter(adapter);
+
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterNews(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         return view;
+    }
+
+    private void filterNews(String query) {
+        List<NewsAdapter.NewsItem> filtered = new ArrayList<>();
+        for (NewsAdapter.NewsItem item : allNews) {
+            if (item.headline.toLowerCase().contains(query.toLowerCase()) ||
+                item.summary.toLowerCase().contains(query.toLowerCase()) ||
+                item.tag.toLowerCase().contains(query.toLowerCase())) {
+                filtered.add(item);
+            }
+        }
+        adapter.updateList(filtered);
     }
 
     private List<NewsAdapter.NewsItem> getNewsList() {
