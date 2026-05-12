@@ -47,39 +47,55 @@ public class ScanPayFragment extends Fragment {
         });
 
         btnConfirm.setOnClickListener(v -> {
+            if (prefs.getBoolean("transaction_blocked", false)) {
+                Toast.makeText(getContext(), "⚠️ Transactions are blocked due to a security alert. Dismiss the alert first.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             String amountStr = etAmount.getText().toString().trim();
             if (amountStr.isEmpty()) {
                 Toast.makeText(getContext(), "Enter amount", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            double amount = Double.parseDouble(amountStr);
-            double currentBalance = Double.parseDouble(prefs.getString("savings_" + userEmail, "0.00"));
-
-            if (amount > currentBalance) {
-                Toast.makeText(getContext(), "Insufficient balance", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Update Balance
-            double newBalance = currentBalance - amount;
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("savings_" + userEmail, String.format(Locale.US, "%.2f", newBalance));
-
-            // Update History
-            String history = prefs.getString("history_" + userEmail, "");
-            String entry = "Paid Sarah Connor via QR – ₹" + amountStr + "|";
-            editor.putString("history_" + userEmail, history + entry);
-            editor.apply();
-
-            updateBalanceDisplay(tvBalance, prefs, userEmail);
-            Toast.makeText(getContext(), "Payment Successful!", Toast.LENGTH_LONG).show();
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).loadFragment(new HomeFragment());
-            }
+            executePayment(prefs, userEmail, amountStr, tvBalance);
         });
 
         return view;
+    }
+
+    private void executePayment(SharedPreferences prefs, String userEmail, String amountStr, TextView tvBalance) {
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double currentBalance = Double.parseDouble(prefs.getString("savings_" + userEmail, "0.00"));
+
+        if (amount > currentBalance) {
+            Toast.makeText(getContext(), "Insufficient balance", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Update Balance
+        double newBalance = currentBalance - amount;
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("savings_" + userEmail, String.format(Locale.US, "%.2f", newBalance));
+
+        // Update History
+        String history = prefs.getString("history_" + userEmail, "");
+        String entry = "Paid Sarah Connor via QR – ₹" + amountStr + "|";
+        editor.putString("history_" + userEmail, history + entry);
+        editor.apply();
+
+        updateBalanceDisplay(tvBalance, prefs, userEmail);
+        Toast.makeText(getContext(), "Payment Successful!", Toast.LENGTH_LONG).show();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).loadFragment(new HomeFragment());
+        }
     }
 
     private void updateBalanceDisplay(TextView tvBalance, SharedPreferences prefs, String userEmail) {

@@ -34,7 +34,9 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtSession;
@@ -57,7 +59,7 @@ public class SensorService extends Service implements SensorEventListener, TextT
     
     private double riskScore = 0;
     private boolean isLocked = false;
-    private boolean warningSent = false;
+    private boolean warningSent = true;
 
     private static final double RISK_WARNING = 2.0;    
     private static final double RISK_CRITICAL = 5.0;   
@@ -250,7 +252,7 @@ public class SensorService extends Service implements SensorEventListener, TextT
         }
     }
 
-    private void sendEmailAlert(String subject, String body) {
+    private void sendEmailAlert(String subject, String htmlBody) {
         final String senderEmail = "authsensebank@gmail.com";
         final String senderPass = "bguq djnp vuiu nxnb";
         final String senderName = "AuthSense Bank Security";
@@ -269,11 +271,26 @@ public class SensorService extends Service implements SensorEventListener, TextT
                     }
                 });
 
-                Message message = new MimeMessage(session);
+                MimeMessage message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(senderEmail, senderName));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(currentUserEmail));
                 message.setSubject("🚨 " + subject);
-                message.setText("Hello,\n\n" + body + "\n\nUser ID: " + currentUserEmail + "\nTime: " + new java.util.Date());
+                
+                String fullHtml = "<html><body style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; background-color: #f9f9f9; padding: 20px;'>" +
+                        "<div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;'>" +
+                        htmlBody + 
+                        "<div style='margin-top: 40px; padding-top: 20px; border-top: 1px solid #eeeeee; font-size: 12px; color: #888;'>" +
+                        "User ID: " + currentUserEmail + "<br>" +
+                        "Date: " + new java.text.SimpleDateFormat("MMM dd, yyyy HH:mm:ss z", Locale.US).format(new java.util.Date()) +
+                        "</div>" +
+                        "</div></body></html>";
+                
+                MimeMultipart multipart = new MimeMultipart("alternative");
+                MimeBodyPart htmlPart = new MimeBodyPart();
+                htmlPart.setContent(fullHtml, "text/html; charset=utf-8");
+                multipart.addBodyPart(htmlPart);
+                message.setContent(multipart);
+                
                 Transport.send(message);
                 Log.i(TAG, "📧 Email alert sent: " + subject);
             } catch (Exception e) {
@@ -289,21 +306,38 @@ public class SensorService extends Service implements SensorEventListener, TextT
     }
 
     private void warnUser(boolean isUrgent) {
-        warningSent = true;
+        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        
         if (isUrgent) {
-            sendEmailAlert("CRITICAL SECURITY ALERT (Attempt " + criticalAnomalyCount + " of 3)", 
-                "URGENT: Highly suspicious behavior detected. This is your " + criticalAnomalyCount + 
-                " critical warning. One more attempt may lead to an account lock.");
-        } else {
-            sendEmailAlert("SECURITY WARNING", 
-                "Suspicious activity detected on your account. Please use the device normally to avoid further alerts.");
+            Log.i(TAG, "🔒 Setting transaction_blocked = true");
+            prefs.edit().putBoolean("transaction_blocked", true).commit();
         }
+
+        warningSent = true;
+        String title, body;
+        if (isUrgent) {
+            title = "Final Security Warning";
+            body = "<h2 style='color: #d9534f; margin-top: 0;'>Final Security Warning</h2>" +
+                   "<p>Hello,</p>" +
+                   "<p>Highly suspicious behavior has been detected during your current session. This is your <b>" + 
+                   criticalAnomalyCount + " of 3</b> critical warnings.</p>" +
+                   "<p>For your protection, outgoing transactions have been restricted, and any further unusual activity will result in an immediate account lock.</p>" +
+                   "<p>Please review your active session in the AuthSense app.</p>";
+        } else {
+            title = "Security Alert: Unusual Activity";
+            body = "<h2 style='color: #f0ad4e; margin-top: 0;'>Security Notification</h2>" +
+                   "<p>Hello,</p>" +
+                   "<p>Our system has identified activity that does not match your typical behavior patterns. We are monitoring the session to ensure your account remains secure.</p>" +
+                   "<p>You can continue to use the app, but please be aware that further anomalies may lead to account restrictions.</p>";
+        }
+        sendEmailAlert(title, body);
 
         if (vibrator != null) vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
         if (isTtsReady && tts != null) {
-            String text = isUrgent ? "Critical alert. Account monitored." : "Warning. Unusual behavior.";
+            String text = isUrgent ? "Critical alert. Account restricted." : "Warning. Unusual behavior detected.";
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "Alert");
         }
+        
         Intent intent = new Intent(this, AnomalyActivity.class);
         intent.putExtra("hard_lock", false);
         intent.putExtra("urgent", isUrgent);
@@ -316,17 +350,34 @@ public class SensorService extends Service implements SensorEventListener, TextT
         if (isLocked) return;
         isLocked = true;
         
-        sendEmailAlert("URGENT: ACCOUNT PERMANENTLY LOCKED", 
-            "Persistent suspicious behavior detected. For your protection, your account has been permanently locked. Please contact support.");
+        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        
+        editor.putBoolean("blocked_" + currentUserEmail, true);
+        editor.putBoolean("is_logged_in", false);
+        editor.commit();
+
+        String resetLink = "https://authsense.bank/reset?email=" + currentUserEmail;
+        
+        String emailBody = "<h2 style='color: #d9534f; margin-top: 0;'>Account Secured & Locked</h2>" +
+            "<p>Dear Customer,</p>" +
+            "<p>As a security precaution, we have temporarily locked your AuthSense Bank account due to repeated unusual behavior patterns detected by our advanced monitoring system.</p>" +
+            "<p>To restore access and verify your identity, please reset your password by following the link below:</p>" +
+            "<p style='margin: 40px 0;'><a href=\"" + resetLink + "\" style='color: #007bff; text-decoration: underline; font-size: 16px; font-weight: 500;'>Click here to reset your password</a></p>" +
+            "<p>If you did not authorize this action or believe this is an error, please contact our security team immediately.</p>" +
+            "<p>Thank you for your cooperation in keeping your account secure.</p>" +
+            "<p>Best regards,<br><b>AuthSense Bank Security</b></p>";
+
+        sendEmailAlert("URGENT: ACCOUNT LOCKED", emailBody);
 
         Log.e(TAG, "🚨 LOCKING SYSTEM");
         if (vibrator != null) vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 500, 200, 500}, -1));
+        
         Intent intent = new Intent(this, AnomalyActivity.class);
         intent.putExtra("hard_lock", true);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
-        prefs.edit().putBoolean("is_logged_in", false).apply();
+
         stopSelf();
     }
 

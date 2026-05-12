@@ -40,6 +40,32 @@
             android:name=".MainActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".NewsDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:exported="true">
+            <!-- Custom Scheme Filter: authsense://reset -->
+            <intent-filter android:label="Reset Password">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="authsense" android:host="reset" />
+            </intent-filter>
+
+            <!-- HTTP/HTTPS Filter - Explicitly set autoVerify to false for dev -->
+            <intent-filter android:autoVerify="false" tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="authsense.bank" android:pathPrefix="/reset" />
+                <data android:scheme="http" android:host="authsense.bank" android:pathPrefix="/reset" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>
