@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_add_beneficiary"
+            android:icon="@drawable/ic_send"
+            android:title="Add Beneficiary" />
+        <item
+            android:id="@+id/nav_password_change"
+            android:icon="@drawable/ic_features"
+            android:title="Password Change" />
+        <item
+            android:id="@+id/nav_kyc_update"
+            android:icon="@drawable/ic_scan"
+            android:title="KYC Update" />
+        <item
+            android:id="@+id/nav_upi_reset"
+            android:icon="@drawable/ic_recharge"
+            android:title="UPI PIN Reset" />
+    </group>
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_more"
+                android:title="Logout" />
+        </menu>
+    </item>
+</menu>

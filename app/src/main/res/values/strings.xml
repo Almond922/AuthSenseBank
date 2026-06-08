@@ -48,4 +48,54 @@
     <string name="carousel_subtitle3">Rewards that match your lifestyle</string>
     <string name="carousel_title4">Invest and Grow</string>
     <string name="carousel_subtitle4">Start your wealth journey</string>
+
+    <!-- Navigation Drawer -->
+    <string name="menu_content_description">Open navigation drawer</string>
+    <string name="nav_add_beneficiary">Add Beneficiary</string>
+    <string name="nav_password_change">Password Change</string>
+    <string name="nav_kyc_update">KYC Update</string>
+    <string name="nav_upi_reset">UPI PIN Reset</string>
+    <string name="nav_logout">Logout</string>
+    <string name="nav_header_bank_name">AuthSense Bank</string>
+    <string name="nav_header_default_email">user@authsense.com</string>
+
+    <!-- Add Beneficiary -->
+    <string name="title_add_beneficiary">Add Beneficiary</string>
+    <string name="desc_add_beneficiary">Register a new beneficiary for fund transfers</string>
+    <string name="hint_beneficiary_acc">Beneficiary Account Number</string>
+    <string name="hint_beneficiary_ifsc">IFSC Code</string>
+    <string name="btn_verify_details">Verify Details</string>
+    <string name="label_enter_otp">Enter OTP sent to your mobile</string>
+    <string name="hint_otp">6-Digit OTP</string>
+    <string name="btn_confirm_add">Confirm &amp; Add</string>
+
+    <!-- Password Change -->
+    <string name="title_password_change">Change Password</string>
+    <string name="desc_password_change">Ensure your account stays secure with a strong password</string>
+    <string name="hint_current_password">Current Password</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="hint_confirm_password">Confirm New Password</string>
+    <string name="btn_update_password">Update Password</string>
+
+    <!-- KYC Update -->
+    <string name="title_kyc_update">KYC Update</string>
+    <string name="desc_kyc_update">Update your details to keep your account active</string>
+    <string name="label_personal_details">Personal Details</string>
+    <string name="hint_residential_address">Current Residential Address</string>
+    <string name="hint_contact_number">Contact Number</string>
+    <string name="label_document_upload">Document Upload</string>
+    <string name="label_upload_id_proof">📄 Upload ID Proof (Aadhaar/PAN)</string>
+    <string name="btn_submit_verification">Submit Verification Request</string>
+
+    <!-- UPI Reset -->
+    <string name="title_upi_reset">Reset UPI PIN</string>
+    <string name="desc_upi_reset">Securely reset your UPI PIN using debit card details</string>
+    <string name="label_debit_card_details">Debit Card Details</string>
+    <string name="hint_last_6_digits">Last 6 Digits of Debit Card</string>
+    <string name="hint_expiry_mmyy">Expiry (MM/YY)</string>
+    <string name="hint_cvv">CVV</string>
+    <string name="btn_verify_card">Verify Card</string>
+    <string name="hint_set_new_upi_pin">Set New 6-Digit UPI PIN</string>
+    <string name="hint_confirm_upi_pin">Confirm UPI PIN</string>
+    <string name="btn_set_new_pin">Set New PIN</string>
 </resources>
