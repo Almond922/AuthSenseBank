@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_upi_reset"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/desc_upi_reset"
+        android:textColor="@color/text_secondary"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_debit_card_details"
+        android:textColor="@color/primary"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp" />
+
+    <EditText
+        android:id="@+id/et_last_digits"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_search_field"
+        android:hint="@string/hint_last_6_digits"
+        android:inputType="number"
+        android:maxLength="6"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:autofillHints="creditCardNumber" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp">
+
+        <EditText
+            android:id="@+id/et_expiry"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_search_field"
+            android:hint="@string/hint_expiry_mmyy"
+            android:inputType="date"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:autofillHints="creditCardExpirationDate" />
+
+        <View android:layout_width="12dp" android:layout_height="0dp" />
+
+        <EditText
+            android:id="@+id/et_cvv"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_search_field"
+            android:hint="@string/hint_cvv"
+            android:inputType="numberPassword"
+            android:maxLength="3"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:autofillHints="creditCardSecurityCode" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_verify_card"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/btn_verify_card"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/white" />
+
+    <LinearLayout
+        android:id="@+id/ll_pin_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="32dp"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/et_new_upi_pin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_search_field"
+            android:hint="@string/hint_set_new_upi_pin"
+            android:inputType="numberPassword"
+            android:maxLength="6"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:autofillHints="password" />
+
+        <EditText
+            android:id="@+id/et_confirm_upi_pin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_search_field"
+            android:hint="@string/hint_confirm_upi_pin"
+            android:inputType="numberPassword"
+            android:maxLength="6"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:autofillHints="password" />
+
+        <Button
+            android:id="@+id/btn_set_pin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:text="@string/btn_set_new_pin"
+            android:backgroundTint="@color/success"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>

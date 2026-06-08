@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_add_beneficiary"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/desc_add_beneficiary"
+        android:textColor="@color/text_secondary"
+        android:layout_marginTop="4dp" />
+
+    <EditText
+        android:id="@+id/et_beneficiary_acc"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_search_field"
+        android:hint="@string/hint_beneficiary_acc"
+        android:inputType="number"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:autofillHints="none" />
+
+    <EditText
+        android:id="@+id/et_beneficiary_ifsc"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_search_field"
+        android:hint="@string/hint_beneficiary_ifsc"
+        android:inputType="textCapCharacters"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:autofillHints="none" />
+
+    <Button
+        android:id="@+id/btn_verify_beneficiary"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/btn_verify_details"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/white" />
+
+    <LinearLayout
+        android:id="@+id/ll_otp_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="32dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_enter_otp"
+            android:textColor="@color/text_secondary" />
+
+        <EditText
+            android:id="@+id/et_otp"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_search_field"
+            android:hint="@string/hint_otp"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="6"
+            android:letterSpacing="0.2"
+            android:autofillHints="none" />
+
+        <Button
+            android:id="@+id/btn_confirm_beneficiary"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/btn_confirm_add"
+            android:backgroundTint="@color/success"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -43,6 +43,42 @@ public class MainActivity extends AppCompatActivity {
         
         loadFragment(new HomeFragment());
 
+        androidx.drawerlayout.widget.DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        com.google.android.material.navigation.NavigationView navView = findViewById(R.id.nav_view);
+        android.view.View headerView = navView.getHeaderView(0);
+        TextView navUserName = headerView.findViewById(R.id.nav_user_name);
+        TextView navUserEmail = headerView.findViewById(R.id.nav_user_email);
+        navUserEmail.setText(userEmail);
+        // Assuming we might have a name in prefs too
+        String userName = prefs.getString("name_" + userEmail, "AuthSense User");
+        navUserName.setText(userName);
+
+        findViewById(R.id.btn_menu).setOnClickListener(v -> drawerLayout.openDrawer(androidx.core.view.GravityCompat.START));
+
+        navView.setNavigationItemSelectedListener(item -> {
+            Fragment fragment = null;
+            int id = item.getItemId();
+            if (id == R.id.nav_add_beneficiary) {
+                fragment = new AddBeneficiaryFragment();
+            } else if (id == R.id.nav_password_change) {
+                fragment = new PasswordChangeFragment();
+            } else if (id == R.id.nav_kyc_update) {
+                fragment = new KycUpdateFragment();
+            } else if (id == R.id.nav_upi_reset) {
+                fragment = new UpiPinResetFragment();
+            } else if (id == R.id.nav_logout) {
+                logout(prefs);
+                return true;
+            }
+
+            if (fragment != null) {
+                loadFragment(fragment);
+                drawerLayout.closeDrawer(androidx.core.view.GravityCompat.START);
+                return true;
+            }
+            return false;
+        });
+
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment fragment;
@@ -61,19 +97,18 @@ public class MainActivity extends AppCompatActivity {
             loadFragment(fragment);
             return true;
         });
+    }
 
-        findViewById(R.id.btn_logout).setOnClickListener(v -> {
-            // Logout logic
-            prefs.edit().putBoolean("is_logged_in", false).apply();
-            stopService(new Intent(this, SensorService.class));
-            
-            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-            
-            Intent intent = new Intent(this, AuthActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+    private void logout(SharedPreferences prefs) {
+        prefs.edit().putBoolean("is_logged_in", false).apply();
+        stopService(new Intent(this, SensorService.class));
+        
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+        
+        Intent intent = new Intent(this, AuthActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override
