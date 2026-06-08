@@ -7,6 +7,7 @@ import android.media.AudioAttributes;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,6 +53,8 @@ public class AnomalyActivity extends AppCompatActivity implements TextToSpeech.O
 
         findViewById(R.id.btn_ignore).setOnClickListener(v -> {
             if (tts != null) tts.stop();
+            // Note: We no longer clear 'transaction_blocked' here.
+            // Access is only restored via re-authentication (SECURE NOW button).
             finish();
         });
     }
@@ -69,17 +72,25 @@ public class AnomalyActivity extends AppCompatActivity implements TextToSpeech.O
         if (isHardLock) {
             tvTitle.setText("ACCOUNT LOCKED");
             tvDesc.setText("Too many unusual activity attempts. Please re-authenticate.");
-            btnIgnore.setVisibility(android.view.View.GONE);
+            btnIgnore.setVisibility(View.GONE);
             btnLock.setText("RE-AUTHENTICATE");
         } else if (isUrgent) {
             tvTitle.setText("FINAL WARNING");
-            tvDesc.setText("Suspicious behavior persists. Attempt " + attemptCount + " of 3. Next one will lock your account!");
-            btnIgnore.setVisibility(android.view.View.VISIBLE);
-            btnLock.setText("LOCK NOW");
+            if (attemptCount >= 2) {
+                tvDesc.setText("Suspicious behavior persists. Attempt " + attemptCount + " of 3. Transactions are now restricted. Please re-authenticate to restore access.");
+                btnIgnore.setText("STAY RESTRICTED");
+            } else {
+                tvDesc.setText("Suspicious behavior persists. Attempt " + attemptCount + " of 3. Please re-authenticate to secure your account.");
+                btnIgnore.setText("DISMISS");
+            }
+            btnIgnore.setVisibility(View.VISIBLE);
+            btnLock.setText("SECURE NOW");
         } else {
             tvTitle.setText("SECURITY ALERT");
-            tvDesc.setText("Unusual activity detected. Is this you?");
-            btnIgnore.setVisibility(android.view.View.VISIBLE);
+            tvDesc.setText("Unusual activity detected. Our AI noticed a change in your device interaction pattern. Please be cautious.");
+            btnIgnore.setVisibility(View.VISIBLE);
+            btnIgnore.setText("IT'S ME, DISMISS");
+            btnLock.setText("SECURE MY ACCOUNT");
         }
     }
 
@@ -98,15 +109,25 @@ public class AnomalyActivity extends AppCompatActivity implements TextToSpeech.O
 
         String text;
         if (isHardLock) {
-            text = "Critical Security Alert. Your system is now locked due to too many suspicious attempts.";
+            text = "Critical Security Alert. Your system is now locked.";
         } else if (isUrgent) {
-            text = "Final Warning. Suspicious behavior detected. This is attempt " + attemptCount + ". Please secure your account.";
+            text = attemptCount >= 2
+                ? "Final Warning. Suspicious behavior detected. Transactions are restricted. Please secure your account."
+                : "Warning. Suspicious behavior detected. Please re-authenticate to secure your account.";
         } else {
-            text = "Warning. Unusual activity detected. Please secure your account or dismiss if it is you.";
+            text = "Security Warning. Unusual activity detected. Please be cautious or dismiss if it is you.";
         }
 
         if (tts != null) {
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "AnomalyAlert");
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (tts != null) {
+            tts.stop();
         }
     }
 

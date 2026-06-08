@@ -23,6 +23,7 @@ public class KeystrokeTracker {
     }
 
     public void recordKeystroke(float pressure) {
+        if (pressure <= 0f) pressure = 0.5f;
         long currentTime = System.currentTimeMillis();
         
         if (lastTouchTime > 0) {
@@ -59,6 +60,16 @@ public class KeystrokeTracker {
     public double getMeanPressure() {
         if (pressures.isEmpty()) return 0;
         return pressures.stream().mapToDouble(Float::doubleValue).average().orElse(0);
+    }
+
+    public double getPressureStdDev() {
+        if (pressures.size() < 2) return 0;
+        double mean = getMeanPressure();
+        double variance = pressures.stream()
+                .mapToDouble(v -> Math.pow(v - mean, 2))
+                .average()
+                .orElse(0);
+        return Math.sqrt(variance);
     }
 
     public double getPressureRange() {

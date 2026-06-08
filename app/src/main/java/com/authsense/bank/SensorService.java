@@ -34,7 +34,9 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtSession;
@@ -50,7 +52,6 @@ public class SensorService extends Service implements SensorEventListener, TextT
     
     private float[] lastAccel = new float[3];
     private float[] lastGyro = new float[3];
-    private int sensorEventCount = 0;
     
     private List<float[]> dataBuffer = new ArrayList<>();
     private final int WINDOW_SIZE = 300;
@@ -58,11 +59,12 @@ public class SensorService extends Service implements SensorEventListener, TextT
     
     private double riskScore = 0;
     private boolean isLocked = false;
-    private boolean warningSent = false;
+    private boolean warningSent = true;
+
     private static final double RISK_WARNING = 2.0;    
     private static final double RISK_CRITICAL = 5.0;   
     private static final double RISK_INCREMENT = 1.0;
-    private static final double RISK_DECAY = 0.1;
+    private static final double RISK_DECAY = 0.2;
 
     private int criticalAnomalyCount = 0;
     private static final int MAX_CRITICAL_ATTEMPTS = 3;
@@ -73,6 +75,7 @@ public class SensorService extends Service implements SensorEventListener, TextT
     
     private boolean isCollectingBaseline = false;
     private List<Double> collectionMSEs = new ArrayList<>();
+    private List<Double> collectionKeyScores = new ArrayList<>();
     private long learningStartTime = 0;
     private static final long LEARNING_DURATION_MS = 300_000; // 5 MINUTES
     
@@ -85,7 +88,6 @@ public class SensorService extends Service implements SensorEventListener, TextT
                 float pressure = intent.getFloatExtra("pressure", 0.5f);
                 if (pressure == 0) pressure = 0.5f;
                 keystrokeTracker.recordKeystroke(pressure);
-                Log.d(TAG, "👆 Keystroke received. Count: " + keystrokeTracker.getKeystrokeCount());
             }
         }
     };
@@ -93,52 +95,30 @@ public class SensorService extends Service implements SensorEventListener, TextT
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "🟢 STEP 1: Sensor Service Created");
-        
         SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
         currentUserEmail = prefs.getString("user_email", "unknown_user");
-        Log.d(TAG, "🟢 STEP 2: Current User: " + currentUserEmail);
 
         try {
-            Log.d(TAG, "🟢 STEP 3: Loading AI Model...");
             modelManager = new ModelManager(this);
-            Log.d(TAG, "🟢 STEP 4: Model Loaded successfully");
         } catch (Exception e) {
-            Log.e(TAG, "❌ STEP 3 FAILED: Model error: " + e.getMessage());
+            Log.e(TAG, "❌ Model error: " + e.getMessage());
         }
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        
-        Log.d(TAG, "🟢 STEP 5: Initializing Voice Engine...");
         tts = new TextToSpeech(this, this);
-        
         behaviorBaseline = new BehaviorBaseline(this, currentUserEmail);
         keystrokeTracker = new KeystrokeTracker();
         
         if (!behaviorBaseline.isBaselineComplete()) {
             isCollectingBaseline = true;
             learningStartTime = System.currentTimeMillis();
-            Log.w(TAG, "📝 MODE: LEARNING started. Need 5 mins of data.");
             mainHandler.post(() -> Toast.makeText(this, "Learning: 5-minute countdown started.", Toast.LENGTH_LONG).show());
-        } else {
-            isCollectingBaseline = false;
-            Log.i(TAG, "🛡️ MODE: MONITORING active.");
         }
         
         Sensor accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         Sensor gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        
-        if (accel != null) {
-            sensorManager.registerListener(this, accel, 100_000);
-            Log.d(TAG, "🟢 STEP 6: Accelerometer Registered");
-        } else {
-            Log.e(TAG, "❌ STEP 6 FAILED: No Accelerometer!");
-        }
-
-        if (gyro != null) {
-            sensorManager.registerListener(this, gyro, 100_000);
-            Log.d(TAG, "🟢 STEP 7: Gyroscope Registered");
-        }
+        if (accel != null) sensorManager.registerListener(this, accel, 100_000);
+        if (gyro != null) sensorManager.registerListener(this, gyro, 100_000);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             VibratorManager vm = (VibratorManager) getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
@@ -153,7 +133,6 @@ public class SensorService extends Service implements SensorEventListener, TextT
         } else {
             registerReceiver(keystrokeReceiver, filter);
         }
-        Log.i(TAG, "🟢 STEP 8: Initialization Complete. Sensors listening...");
     }
 
     @Override
@@ -161,20 +140,11 @@ public class SensorService extends Service implements SensorEventListener, TextT
         if (status == TextToSpeech.SUCCESS) {
             tts.setLanguage(Locale.US);
             isTtsReady = true;
-            Log.d(TAG, "✅ Voice engine ready");
-        } else {
-            Log.e(TAG, "❌ Voice engine failed to init!");
         }
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        sensorEventCount++;
-        // Print hardware heartbeat every 100 events
-        if (sensorEventCount % 100 == 0) {
-            Log.v(TAG, "📡 Hardware Pulse: Received 100 events. Current Sensor: " + event.sensor.getType());
-        }
-
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             lastAccel = event.values.clone();
             float[] sample = new float[NUM_FEATURES];
@@ -188,26 +158,14 @@ public class SensorService extends Service implements SensorEventListener, TextT
 
     private void addDataPoint(float[] sample) {
         dataBuffer.add(sample);
-        
-        // Show progress while filling initial buffer
-        if (dataBuffer.size() < WINDOW_SIZE && dataBuffer.size() % 50 == 0) {
-            Log.d(TAG, "📥 Filling AI Buffer: " + dataBuffer.size() + "/" + WINDOW_SIZE + " samples...");
-        }
-
         if (dataBuffer.size() >= WINDOW_SIZE) {
             runInference();
-            // Slide window by 5 seconds
             for(int i=0; i<50; i++) if(!dataBuffer.isEmpty()) dataBuffer.remove(0);
         }
     }
 
     private void runInference() {
-        if (modelManager == null || modelManager.getSession() == null || isLocked) {
-            if (modelManager != null && modelManager.getSession() == null) {
-                Log.e(TAG, "⚠️ Inference skipped: OrtSession is NULL");
-            }
-            return;
-        }
+        if (modelManager == null || modelManager.getSession() == null || isLocked) return;
         try {
             float[][][] inputData = new float[1][WINDOW_SIZE][NUM_FEATURES];
             for (int i = 0; i < WINDOW_SIZE; i++) inputData[0][i] = dataBuffer.get(i);
@@ -230,34 +188,52 @@ public class SensorService extends Service implements SensorEventListener, TextT
         long elapsed = System.currentTimeMillis() - learningStartTime;
         long remaining = (LEARNING_DURATION_MS - elapsed) / 1000;
         collectionMSEs.add(mse);
+        
+        if (keystrokeTracker.hasEnoughData()) {
+            double normalizedInterval = Math.min(keystrokeTracker.getMeanKeystrokeInterval(), 1000.0) / 10.0;
+            double currentRaw = (normalizedInterval * 0.7) + (keystrokeTracker.getMeanPressure() * 100 * 0.3);
+            collectionKeyScores.add(currentRaw);
+        }
+
         Log.i(TAG, String.format(Locale.US, "⏳ Learning: %ds left | MSE: %.4f", Math.max(0, remaining), mse));
 
         if (elapsed >= LEARNING_DURATION_MS && keystrokeTracker.hasEnoughData()) {
             double meanMSE = collectionMSEs.stream().mapToDouble(Double::doubleValue).average().orElse(0);
             double mseStdDev = computeStdDev(collectionMSEs, meanMSE);
-            behaviorBaseline.setBaseline(keystrokeTracker, meanMSE, mseStdDev);
+            
+            double meanKeyRaw = collectionKeyScores.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            List<Double> keyErrors = new ArrayList<>();
+            for (Double score : collectionKeyScores) keyErrors.add(Math.abs(score - meanKeyRaw));
+            double meanKeyError = keyErrors.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            double keyErrorStdDev = computeStdDev(keyErrors, meanKeyError);
+
+            behaviorBaseline.setBaseline(keystrokeTracker, meanMSE, mseStdDev, meanKeyRaw, meanKeyError, keyErrorStdDev);
             isCollectingBaseline = false;
-            Log.i(TAG, "🎉 Learning Complete!");
-            mainHandler.post(() -> Toast.makeText(this, "🎉 Profile Created! Monitoring Active.", Toast.LENGTH_LONG).show());
+            mainHandler.post(() -> Toast.makeText(this, "🎉 Profile Created!", Toast.LENGTH_LONG).show());
         }
     }
 
     private void handleMonitoring(double mse) {
         double motionThreshold = behaviorBaseline.getMotionThreshold();
         boolean isMotionAnomaly = mse > motionThreshold;
-        double keystrokeScore = behaviorBaseline.calculateKeystrokeAnomalyScore(keystrokeTracker);
         
-        Log.d(TAG, String.format(Locale.US, "🛡️ Risk: %.1f | MSE: %.4f (Th: %.4f) | Key: %.2f", riskScore, mse, motionThreshold, keystrokeScore));
+        double keyDeviation = behaviorBaseline.calculateKeystrokeAnomalyScore(keystrokeTracker);
+        double keyThreshold = behaviorBaseline.getKeystrokeThreshold();
+        boolean isKeystrokeAnomaly = keystrokeTracker.hasEnoughData() && (keyDeviation > keyThreshold);
+        
+        double normalizedInterval = Math.min(keystrokeTracker.getMeanKeystrokeInterval(), 1000.0) / 10.0;
+        double currentRaw = (normalizedInterval * 0.7) + (keystrokeTracker.getMeanPressure() * 100 * 0.3);
+        Log.d(TAG, String.format(Locale.US, "🛡️ Risk: %.1f | MSE: %.4f (Th: %.4f) | KeyRaw: %.1f (Th: %.1f) | KeyDev: %.1f",
+                riskScore, mse, motionThreshold, currentRaw, keyThreshold, keyDeviation));
 
-        if (isMotionAnomaly || keystrokeScore > 0.5) {
+        if (isMotionAnomaly || isKeystrokeAnomaly) {
             riskScore += RISK_INCREMENT;
+            
             if (riskScore >= RISK_WARNING && !warningSent) {
-                sendEmailAlert("SECURITY WARNING", "Suspicious activity detected on your account.");
                 warnUser(false);
             }
             if (riskScore >= RISK_CRITICAL) {
                 criticalAnomalyCount++;
-                sendEmailAlert("URGENT: ACCOUNT LOCKED", "Persistent suspicious behavior. Account locked for safety.");
                 if (criticalAnomalyCount >= MAX_CRITICAL_ATTEMPTS) {
                     lockSystem();
                 } else {
@@ -268,20 +244,21 @@ public class SensorService extends Service implements SensorEventListener, TextT
             }
         } else {
             riskScore = Math.max(0, riskScore - RISK_DECAY);
+            if (riskScore == 0) warningSent = false;
+            
             if (keystrokeTracker.hasEnoughData() && mse < motionThreshold * 1.1) {
                 behaviorBaseline.updateBaseline(keystrokeTracker, mse, 0.005);
             }
         }
     }
 
-    private void sendEmailAlert(String subject, String body) {
+    private void sendEmailAlert(String subject, String htmlBody) {
         final String senderEmail = "authsensebank@gmail.com";
         final String senderPass = "bguq djnp vuiu nxnb";
         final String senderName = "AuthSense Bank Security";
 
         new Thread(() -> {
             try {
-                Log.i(TAG, "📧 Attempting to send alert to: " + currentUserEmail);
                 Properties props = new Properties();
                 props.put("mail.smtp.auth", "true");
                 props.put("mail.smtp.starttls.enable", "true");
@@ -294,14 +271,28 @@ public class SensorService extends Service implements SensorEventListener, TextT
                     }
                 });
 
-                Message message = new MimeMessage(session);
+                MimeMessage message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(senderEmail, senderName));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(currentUserEmail));
-                message.setSubject("🚨 " + senderName + ": " + subject);
-                message.setText("Hello,\n\n" + body + "\n\nUser ID: " + currentUserEmail + "\nTime: " + new java.util.Date());
+                message.setSubject("🚨 " + subject);
+                
+                String fullHtml = "<html><body style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; background-color: #f9f9f9; padding: 20px;'>" +
+                        "<div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;'>" +
+                        htmlBody + 
+                        "<div style='margin-top: 40px; padding-top: 20px; border-top: 1px solid #eeeeee; font-size: 12px; color: #888;'>" +
+                        "User ID: " + currentUserEmail + "<br>" +
+                        "Date: " + new java.text.SimpleDateFormat("MMM dd, yyyy HH:mm:ss z", Locale.US).format(new java.util.Date()) +
+                        "</div>" +
+                        "</div></body></html>";
+                
+                MimeMultipart multipart = new MimeMultipart("alternative");
+                MimeBodyPart htmlPart = new MimeBodyPart();
+                htmlPart.setContent(fullHtml, "text/html; charset=utf-8");
+                multipart.addBodyPart(htmlPart);
+                message.setContent(multipart);
                 
                 Transport.send(message);
-                Log.i(TAG, "✅ Email sent successfully to " + currentUserEmail);
+                Log.i(TAG, "📧 Email alert sent: " + subject);
             } catch (Exception e) {
                 Log.e(TAG, "❌ Email Failed: " + e.getMessage());
             }
@@ -315,12 +306,38 @@ public class SensorService extends Service implements SensorEventListener, TextT
     }
 
     private void warnUser(boolean isUrgent) {
+        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        
+        if (isUrgent) {
+            Log.i(TAG, "🔒 Setting transaction_blocked = true");
+            prefs.edit().putBoolean("transaction_blocked", true).commit();
+        }
+
         warningSent = true;
+        String title, body;
+        if (isUrgent) {
+            title = "Final Security Warning";
+            body = "<h2 style='color: #d9534f; margin-top: 0;'>Final Security Warning</h2>" +
+                   "<p>Hello,</p>" +
+                   "<p>Highly suspicious behavior has been detected during your current session. This is your <b>" + 
+                   criticalAnomalyCount + " of 3</b> critical warnings.</p>" +
+                   "<p>For your protection, outgoing transactions have been restricted, and any further unusual activity will result in an immediate account lock.</p>" +
+                   "<p>Please review your active session in the AuthSense app.</p>";
+        } else {
+            title = "Security Alert: Unusual Activity";
+            body = "<h2 style='color: #f0ad4e; margin-top: 0;'>Security Notification</h2>" +
+                   "<p>Hello,</p>" +
+                   "<p>Our system has identified activity that does not match your typical behavior patterns. We are monitoring the session to ensure your account remains secure.</p>" +
+                   "<p>You can continue to use the app, but please be aware that further anomalies may lead to account restrictions.</p>";
+        }
+        sendEmailAlert(title, body);
+
         if (vibrator != null) vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
         if (isTtsReady && tts != null) {
-            String text = isUrgent ? "Critical alert. Account monitored." : "Warning. Unusual behavior.";
+            String text = isUrgent ? "Critical alert. Account restricted." : "Warning. Unusual behavior detected.";
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "Alert");
         }
+        
         Intent intent = new Intent(this, AnomalyActivity.class);
         intent.putExtra("hard_lock", false);
         intent.putExtra("urgent", isUrgent);
@@ -332,14 +349,35 @@ public class SensorService extends Service implements SensorEventListener, TextT
     private void lockSystem() {
         if (isLocked) return;
         isLocked = true;
+        
+        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        
+        editor.putBoolean("blocked_" + currentUserEmail, true);
+        editor.putBoolean("is_logged_in", false);
+        editor.commit();
+
+        String resetLink = "https://authsense.bank/reset?email=" + currentUserEmail;
+        
+        String emailBody = "<h2 style='color: #d9534f; margin-top: 0;'>Account Secured & Locked</h2>" +
+            "<p>Dear Customer,</p>" +
+            "<p>As a security precaution, we have temporarily locked your AuthSense Bank account due to repeated unusual behavior patterns detected by our advanced monitoring system.</p>" +
+            "<p>To restore access and verify your identity, please reset your password by following the link below:</p>" +
+            "<p style='margin: 40px 0;'><a href=\"" + resetLink + "\" style='color: #007bff; text-decoration: underline; font-size: 16px; font-weight: 500;'>Click here to reset your password</a></p>" +
+            "<p>If you did not authorize this action or believe this is an error, please contact our security team immediately.</p>" +
+            "<p>Thank you for your cooperation in keeping your account secure.</p>" +
+            "<p>Best regards,<br><b>AuthSense Bank Security</b></p>";
+
+        sendEmailAlert("URGENT: ACCOUNT LOCKED", emailBody);
+
         Log.e(TAG, "🚨 LOCKING SYSTEM");
         if (vibrator != null) vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 500, 200, 500}, -1));
+        
         Intent intent = new Intent(this, AnomalyActivity.class);
         intent.putExtra("hard_lock", true);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
-        prefs.edit().putBoolean("is_logged_in", false).apply();
+
         stopSelf();
     }
 

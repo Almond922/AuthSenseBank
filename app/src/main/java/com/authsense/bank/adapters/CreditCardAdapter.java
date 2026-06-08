@@ -1,6 +1,7 @@
 package com.authsense.bank.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,9 +46,15 @@ public class CreditCardAdapter extends RecyclerView.Adapter<CreditCardAdapter.Ca
         holder.cardFee.setText(card.annualFee);
         holder.cardLimit.setText(card.creditLimit);
         holder.cardBenefits.setText(card.benefits);
-        // Removed emoji binding
-        holder.btnApply.setOnClickListener(v ->
-                Toast.makeText(context, "Applying for " + card.name + "...", Toast.LENGTH_SHORT).show());
+        
+        holder.btnApply.setOnClickListener(v -> {
+            SharedPreferences prefs = context.getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+            if (prefs.getBoolean("transaction_blocked", false)) {
+                Toast.makeText(context, "⚠️ Actions are restricted due to a security alert. Please re-authenticate.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            Toast.makeText(context, "Applying for " + card.name + "...", Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override
@@ -57,7 +64,7 @@ public class CreditCardAdapter extends RecyclerView.Adapter<CreditCardAdapter.Ca
 
     public static class CardViewHolder extends RecyclerView.ViewHolder {
         LinearLayout cardBg;
-        View cardEmoji; // Changed from TextView to View
+        View cardEmoji;
         TextView cardName, cardType, cardBadge, cardFee, cardLimit, cardBenefits, btnApply;
 
         public CardViewHolder(@NonNull View itemView) {
@@ -74,7 +81,6 @@ public class CreditCardAdapter extends RecyclerView.Adapter<CreditCardAdapter.Ca
         }
     }
 
-    // Data model for a card
     public static class CardData {
         public String name, type, badge, annualFee, creditLimit, benefits, emoji;
         public long bgColor;

@@ -38,6 +38,11 @@ public class RechargeFragment extends Fragment {
         spinner.setAdapter(adapter);
 
         btnRecharge.setOnClickListener(v -> {
+            if (prefs.getBoolean("transaction_blocked", false)) {
+                Toast.makeText(getContext(), "⚠️ Transactions are blocked due to a security alert. Dismiss the alert first.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             String phone = etPhone.getText().toString().trim();
             String operator = spinner.getSelectedItem().toString();
             String amountStr = etAmount.getText().toString().trim();
@@ -47,33 +52,44 @@ public class RechargeFragment extends Fragment {
                 return;
             }
 
-            double amount = Double.parseDouble(amountStr);
-            double currentBalance = Double.parseDouble(prefs.getString("savings_" + userEmail, "0.00"));
-
-            if (amount > currentBalance) {
-                Toast.makeText(getContext(), "Insufficient balance", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Update Balance
-            double newBalance = currentBalance - amount;
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("savings_" + userEmail, String.format(Locale.US, "%.2f", newBalance));
-
-            // Update History
-            String history = prefs.getString("history_" + userEmail, "");
-            String entry = operator + " Recharge (" + phone + ") – ₹" + amountStr + "|";
-            editor.putString("history_" + userEmail, history + entry);
-            editor.apply();
-
-            updateBalanceDisplay(tvBalance, prefs, userEmail);
-            Toast.makeText(getContext(), "Recharge Successful!", Toast.LENGTH_LONG).show();
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).loadFragment(new HomeFragment());
-            }
+            executeRecharge(prefs, userEmail, phone, operator, amountStr, tvBalance);
         });
 
         return view;
+    }
+
+    private void executeRecharge(SharedPreferences prefs, String userEmail, String phone, String operator, String amountStr, TextView tvBalance) {
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double currentBalance = Double.parseDouble(prefs.getString("savings_" + userEmail, "0.00"));
+
+        if (amount > currentBalance) {
+            Toast.makeText(getContext(), "Insufficient balance", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Update Balance
+        double newBalance = currentBalance - amount;
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("savings_" + userEmail, String.format(Locale.US, "%.2f", newBalance));
+
+        // Update History
+        String history = prefs.getString("history_" + userEmail, "");
+        String entry = operator + " Recharge (" + phone + ") – ₹" + amountStr + "|";
+        editor.putString("history_" + userEmail, history + entry);
+        editor.apply();
+
+        updateBalanceDisplay(tvBalance, prefs, userEmail);
+        Toast.makeText(getContext(), "Recharge Successful!", Toast.LENGTH_LONG).show();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).loadFragment(new HomeFragment());
+        }
     }
 
     private void updateBalanceDisplay(TextView tvBalance, SharedPreferences prefs, String userEmail) {

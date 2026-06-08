@@ -3,6 +3,7 @@ package com.authsense.bank;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,21 +36,19 @@ public class SignInFragment extends Fragment {
 
             SharedPreferences prefs = getActivity().getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
             
-            // MULTI-USER CHECK: Get password specifically for this email
+            // Get password specifically for this email
             String savedPass = prefs.getString("pass_" + inputEmail, "");
             String blockKey = "blocked_" + inputEmail;
 
-            if (prefs.getBoolean(blockKey, false)) {
-                Toast.makeText(getContext(), "ACCOUNT BLOCKED. Contact support.", Toast.LENGTH_LONG).show();
-                return;
-            }
-
+            // Security block check removed
             if (!savedPass.isEmpty() && inputPass.equals(savedPass)) {
                 Log.i(TAG, "✅ Login Success: " + inputEmail);
                 
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putBoolean("is_logged_in", true);
-                editor.putString("user_email", inputEmail); // MARK THIS AS THE ACTIVE USER
+                editor.putString("user_email", inputEmail);
+                editor.putBoolean("transaction_blocked", false);
+                editor.putBoolean(blockKey, false); // Unblock user on success
                 editor.apply();
 
                 Intent intent = new Intent(getActivity(), MainActivity.class);
@@ -58,6 +57,15 @@ public class SignInFragment extends Fragment {
             } else {
                 Toast.makeText(getContext(), "Invalid Credentials", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Forgot Password Link Handler
+        view.findViewById(R.id.tv_forgot).setOnClickListener(v -> {
+            String currentEmail = etEmail.getText().toString().trim();
+            Intent intent = new Intent(getActivity(), ResetPasswordActivity.class);
+            // Passing URI data to trigger the deep link logic in ResetPasswordActivity
+            intent.setData(Uri.parse("authsense://reset?email=" + currentEmail));
+            startActivity(intent);
         });
 
         view.findViewById(R.id.tv_go_signup).setOnClickListener(v -> {

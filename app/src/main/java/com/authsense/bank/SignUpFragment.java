@@ -46,8 +46,11 @@ public class SignUpFragment extends Fragment {
             // Store user data
             editor.putString("pass_" + email, pass);
             editor.putString("name_" + email, name);
-            editor.putString("savings_" + email, "124560.75"); // Realistic initial balance
-            editor.putString("current_" + email, "26360.75");  // Realistic initial balance
+            editor.putString("savings_" + email, "124560.75");
+            editor.putString("current_" + email, "26360.75");
+            
+            // Initialize security flags
+            editor.putBoolean("transaction_blocked", false);
             
             // Also save this as the primary user for now
             editor.putString("user_email", email); 

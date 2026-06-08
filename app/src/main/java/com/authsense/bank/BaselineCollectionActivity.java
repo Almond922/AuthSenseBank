@@ -42,6 +42,7 @@ public class BaselineCollectionActivity extends AppCompatActivity implements Sen
     private float[] lastGyro = new float[3];
     private List<float[]> motionBuffer = new ArrayList<>();
     private List<Double> mseValues = new ArrayList<>();
+    private List<Double> collectionKeyScores = new ArrayList<>();
 
     private long startTime;
     private Handler handler = new Handler();
@@ -103,7 +104,7 @@ public class BaselineCollectionActivity extends AppCompatActivity implements Sen
     }
 
     /**
-     * Record motion MSE for baseline computation
+     * Record motion MSE
      */
     private void recordMotionMSE() {
         try {
@@ -123,7 +124,7 @@ public class BaselineCollectionActivity extends AppCompatActivity implements Sen
 
             inputTensor.close();
             result.close();
-            
+
             Log.d(TAG, "Motion MSE: " + mse);
         } catch (Exception e) {
             Log.e(TAG, "Error computing MSE during baseline", e);
@@ -144,12 +145,20 @@ public class BaselineCollectionActivity extends AppCompatActivity implements Sen
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN || 
-            event.getAction() == MotionEvent.ACTION_MOVE) {
-            keystrokeTracker.recordKeystroke(event.getPressure());
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            float pressure = event.getPressure();
+            if (pressure <= 0f) pressure = 0.5f;
+            keystrokeTracker.recordKeystroke(pressure);
+
+            // Sample score on every touch once we have enough data
+            if (keystrokeTracker.hasEnoughData()) {
+                double normalizedInterval = Math.min(keystrokeTracker.getMeanKeystrokeInterval(), 1000.0) / 10.0;
+                double currentRaw = (normalizedInterval * 0.7) + (keystrokeTracker.getMeanPressure() * 100 * 0.3);
+                collectionKeyScores.add(currentRaw);
+            }
         }
-        return super.onTouchEvent(event);
+        return super.dispatchTouchEvent(event);
     }
 
     private void updateStatus() {
@@ -170,17 +179,28 @@ public class BaselineCollectionActivity extends AppCompatActivity implements Sen
     }
 
     private void finishBaseline() {
-        // Compute averages
+        // Compute Motion MSE Stats
         double meanMSE = mseValues.isEmpty() ? 0 : 
             mseValues.stream().mapToDouble(Double::doubleValue).average().orElse(0);
         double mseStdDev = computeStdDev(mseValues, meanMSE);
 
-        // Save baseline
+        // Compute Keystroke Stats
+        double meanKeyRaw = collectionKeyScores.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+        
+        List<Double> keyErrors = new ArrayList<>();
+        for (Double score : collectionKeyScores) {
+            keyErrors.add(Math.abs(score - meanKeyRaw));
+        }
+        double meanKeyError = keyErrors.isEmpty() ? 0 : 
+            keyErrors.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+        double keyErrorStdDev = computeStdDev(keyErrors, meanKeyError);
+
+        // Save baseline with full 6-parameter set
         BehaviorBaseline baseline = new BehaviorBaseline(this, userEmail);
-        baseline.setBaseline(keystrokeTracker, meanMSE, mseStdDev);
+        baseline.setBaseline(keystrokeTracker, meanMSE, mseStdDev, meanKeyRaw, meanKeyError, keyErrorStdDev);
 
         Log.i(TAG, "Baseline collection complete: " + baseline);
-        Log.i(TAG, "Keystroke data: " + keystrokeTracker);
+        Log.i(TAG, "Keystroke samples: " + collectionKeyScores.size());
 
         tvStatus.setText("Baseline complete! Launching app...");
 
