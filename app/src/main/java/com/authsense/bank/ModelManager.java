@@ -15,36 +15,56 @@ public class ModelManager {
     private static final String TAG = "ModelManager";
     private OrtEnvironment env;
     private OrtSession session;
-    private double threshold;
-    private float[] scalerMin;
-    private float[] scalerMax;
+    private double threshold = 0.005; // Default threshold
+    private float[] scalerMin = new float[0];
+    private float[] scalerMax = new float[0];
 
     public ModelManager(Context context) {
         try {
             // 1. Load Metadata
-            String jsonString = loadJSONFromAsset(context, "lstm_meta.json");
-            JSONObject jsonObject = new JSONObject(jsonString);
-            this.threshold = jsonObject.getDouble("lstm_ae_threshold");
-            
-            // Load Scaler values
-            JSONArray minArray = jsonObject.getJSONArray("scaler_min");
-            JSONArray maxArray = jsonObject.getJSONArray("scaler_max");
-            scalerMin = new float[minArray.length()];
-            scalerMax = new float[maxArray.length()];
-            for (int i = 0; i < minArray.length(); i++) {
-                scalerMin[i] = (float) minArray.getDouble(i);
-                scalerMax[i] = (float) maxArray.getDouble(i);
+            String jsonString = loadJSONFromAsset(context, "lstm_cnn_meta.json");
+            if (jsonString != null) {
+                JSONObject jsonObject = new JSONObject(jsonString);
+
+                // Flexible key check for threshold
+                if (jsonObject.has("lstm_cnn_threshold")) {
+                    this.threshold = jsonObject.getDouble("lstm_cnn_threshold");
+                } else if (jsonObject.has("lstm_ae_threshold")) {
+                    this.threshold = jsonObject.getDouble("lstm_ae_threshold");
+                }
+
+                // Load Scaler values
+                JSONArray minArray = jsonObject.optJSONArray("scaler_min");
+                JSONArray maxArray = jsonObject.optJSONArray("scaler_max");
+
+                if (minArray != null && maxArray != null) {
+                    scalerMin = new float[minArray.length()];
+                    scalerMax = new float[maxArray.length()];
+                    for (int i = 0; i < minArray.length(); i++) {
+                        scalerMin[i] = (float) minArray.getDouble(i);
+                        scalerMax[i] = (float) maxArray.getDouble(i);
+                    }
+                }
             }
 
             // 2. Initialize ONNX
             env = OrtEnvironment.getEnvironment();
-            String modelPath = copyAssetToInternalStorage(context, "lstm_ae.onnx");
+            
+            // Copy the model
+            String modelPath = copyAssetToInternalStorage(context, "lstm_cnn.onnx", "lstm_cnn.onnx");
+            
+            // CRITICAL: The .onnx file internally expects its data to be named "lstm_ae.onnx.data"
+            // We copy our "lstm_cnn.onnx.data" asset to the filename the model structure is hardcoded to look for.
             try {
-                copyAssetToInternalStorage(context, "lstm_ae.onnx.data");
-            } catch (Exception ignored) {}
+                copyAssetToInternalStorage(context, "lstm_cnn.onnx.data", "lstm_ae.onnx.data");
+            } catch (Exception e) {
+                Log.w(TAG, "Data file copy warning: " + e.getMessage());
+            }
 
-            session = env.createSession(modelPath);
-            Log.d(TAG, "Model loaded successfully. Threshold: " + threshold);
+            if (modelPath != null) {
+                session = env.createSession(modelPath);
+                Log.d(TAG, "Model loaded successfully. Threshold: " + threshold);
+            }
 
         } catch (Exception e) {
             Log.e(TAG, "Initialization error: " + e.getMessage(), e);
@@ -52,16 +72,16 @@ public class ModelManager {
     }
 
     public float scaleValue(float value, int index) {
-        if (index >= scalerMin.length) return value;
+        if (scalerMin == null || index >= scalerMin.length || index >= scalerMax.length) return value;
         // Min-Max Scaling formula: (x - min) / (max - min)
         float denom = scalerMax[index] - scalerMin[index];
         if (denom == 0) return 0;
         return (value - scalerMin[index]) / denom;
     }
 
-    private String copyAssetToInternalStorage(Context context, String fileName) throws Exception {
-        File file = new File(context.getFilesDir(), fileName);
-        try (InputStream is = context.getAssets().open(fileName);
+    private String copyAssetToInternalStorage(Context context, String assetName, String targetFileName) throws Exception {
+        File file = new File(context.getFilesDir(), targetFileName);
+        try (InputStream is = context.getAssets().open(assetName);
              FileOutputStream fos = new FileOutputStream(file)) {
             byte[] buffer = new byte[8192];
             int read;
@@ -72,12 +92,16 @@ public class ModelManager {
         return file.getAbsolutePath();
     }
 
-    private String loadJSONFromAsset(Context context, String fileName) throws Exception {
-        InputStream is = context.getAssets().open(fileName);
-        byte[] buffer = new byte[is.available()];
-        is.read(buffer);
-        is.close();
-        return new String(buffer, StandardCharsets.UTF_8);
+    private String loadJSONFromAsset(Context context, String fileName) {
+        try (InputStream is = context.getAssets().open(fileName)) {
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            int read = is.read(buffer);
+            return new String(buffer, 0, read, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading JSON: " + fileName, e);
+            return null;
+        }
     }
 
     public OrtSession getSession() { return session; }

@@ -1,5 +1,5 @@
 {
-  "lstm_ae_threshold": 0.005,
+  "lstm_cnn_threshold": 0.005,
   "window_samples": 300,
   "n_features": 6,
   "target_hz": 10,

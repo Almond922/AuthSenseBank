@@ -79,15 +79,26 @@ public class SensorService extends Service implements SensorEventListener, TextT
     private long learningStartTime = 0;
     private static final long LEARNING_DURATION_MS = 300_000; // 5 MINUTES
     
+    // Adaptive Decision Engine Fields
+    private boolean isInjuryMode = false;
+    private double travelMultiplier = 1.0;
+    private double currentVariance = 0.0;
+    private List<Double> accelMagnitudes = new ArrayList<>();
+    private static final int VARIANCE_WINDOW_SIZE = 100; // 10s window for extreme stability
+
     private Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private BroadcastReceiver keystrokeReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver behaviorReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if ("com.authsense.bank.KEYSTROKE_EVENT".equals(intent.getAction())) {
+            String action = intent.getAction();
+            if ("com.authsense.bank.KEYSTROKE_EVENT".equals(action)) {
                 float pressure = intent.getFloatExtra("pressure", 0.5f);
                 if (pressure == 0) pressure = 0.5f;
                 keystrokeTracker.recordKeystroke(pressure);
+            } else if ("com.authsense.bank.INJURY_MODE_TOGGLE".equals(action)) {
+                isInjuryMode = intent.getBooleanExtra("active", false);
+                Log.i(TAG, "🩹 Injury Mode Toggled: " + (isInjuryMode ? "ENABLED (3.0x Multiplier)" : "DISABLED"));
             }
         }
     };
@@ -127,11 +138,14 @@ public class SensorService extends Service implements SensorEventListener, TextT
             vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         }
         
-        IntentFilter filter = new IntentFilter("com.authsense.bank.KEYSTROKE_EVENT");
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.authsense.bank.KEYSTROKE_EVENT");
+        filter.addAction("com.authsense.bank.INJURY_MODE_TOGGLE");
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(keystrokeReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            registerReceiver(behaviorReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         } else {
-            registerReceiver(keystrokeReceiver, filter);
+            registerReceiver(behaviorReceiver, filter);
         }
     }
 
@@ -147,12 +161,41 @@ public class SensorService extends Service implements SensorEventListener, TextT
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             lastAccel = event.values.clone();
+            
+            // Travel Detection: Magnitude Variance Analysis
+            double mag = Math.sqrt(lastAccel[0]*lastAccel[0] + lastAccel[1]*lastAccel[1] + lastAccel[2]*lastAccel[2]);
+            accelMagnitudes.add(mag);
+            if (accelMagnitudes.size() > VARIANCE_WINDOW_SIZE) {
+                accelMagnitudes.remove(0);
+                updateTravelState();
+            }
+
             float[] sample = new float[NUM_FEATURES];
             for (int i = 0; i < 3; i++) sample[i] = modelManager.scaleValue(lastAccel[i], i);
             for (int i = 0; i < 3; i++) sample[i + 3] = modelManager.scaleValue(lastGyro[i], i + 3);
             addDataPoint(sample);
         } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             lastGyro = event.values.clone();
+        }
+    }
+
+    private void updateTravelState() {
+        if (accelMagnitudes.size() < VARIANCE_WINDOW_SIZE) return;
+        double sum = 0;
+        for (double d : accelMagnitudes) sum += d;
+        double mean = sum / accelMagnitudes.size();
+        double sqDiffSum = 0;
+        for (double d : accelMagnitudes) sqDiffSum += Math.pow(d - mean, 2);
+        currentVariance = sqDiffSum / accelMagnitudes.size();
+
+        // High-stability thresholds
+        // Stationary typing jitter is typically < 4.0
+        if (currentVariance < 5.0) {
+            travelMultiplier = 1.0; // Normal
+        } else if (currentVariance < 15.0) {
+            travelMultiplier = 1.8; // Vehicle
+        } else {
+            travelMultiplier = 2.5; // Walking
         }
     }
 
@@ -214,17 +257,22 @@ public class SensorService extends Service implements SensorEventListener, TextT
     }
 
     private void handleMonitoring(double mse) {
-        double motionThreshold = behaviorBaseline.getMotionThreshold();
+        // Apply Adaptive Multipliers
+        double injuryMultiplier = isInjuryMode ? 3.0 : 1.0;
+        double combinedMultiplier = injuryMultiplier * travelMultiplier;
+
+        double motionThreshold = behaviorBaseline.getMotionThreshold() * combinedMultiplier;
         boolean isMotionAnomaly = mse > motionThreshold;
         
         double keyDeviation = behaviorBaseline.calculateKeystrokeAnomalyScore(keystrokeTracker);
-        double keyThreshold = behaviorBaseline.getKeystrokeThreshold();
+        double keyThreshold = behaviorBaseline.getKeystrokeThreshold() * combinedMultiplier;
         boolean isKeystrokeAnomaly = keystrokeTracker.hasEnoughData() && (keyDeviation > keyThreshold);
         
-        double normalizedInterval = Math.min(keystrokeTracker.getMeanKeystrokeInterval(), 1000.0) / 10.0;
-        double currentRaw = (normalizedInterval * 0.7) + (keystrokeTracker.getMeanPressure() * 100 * 0.3);
-        Log.d(TAG, String.format(Locale.US, "🛡️ Risk: %.1f | MSE: %.4f (Th: %.4f) | KeyRaw: %.1f (Th: %.1f) | KeyDev: %.1f",
-                riskScore, mse, motionThreshold, currentRaw, keyThreshold, keyDeviation));
+        // Mode naming for logs
+        String modeName = (travelMultiplier == 1.0) ? "Normal" : (travelMultiplier == 1.8 ? "Vehicle" : "Walking");
+
+        Log.d(TAG, String.format(Locale.US, "🛡️ Risk: %.1f | Mode: %s (Var: %.3f) | Mult: %.1fx | MSE: %.4f (Th: %.4f) | KeyDev: %.1f (Th: %.1f)",
+                riskScore, modeName, currentVariance, combinedMultiplier, mse, motionThreshold, keyDeviation, keyThreshold));
 
         if (isMotionAnomaly || isKeystrokeAnomaly) {
             riskScore += RISK_INCREMENT;
@@ -400,7 +448,7 @@ public class SensorService extends Service implements SensorEventListener, TextT
     public void onDestroy() {
         super.onDestroy();
         sensorManager.unregisterListener(this);
-        unregisterReceiver(keystrokeReceiver);
+        unregisterReceiver(behaviorReceiver);
         if (tts != null) {
             tts.stop();
             tts.shutdown();

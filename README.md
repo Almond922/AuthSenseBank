@@ -29,42 +29,49 @@ AuthSense addresses this challenge using continuous behavioral monitoring and AI
 * Detects anomalies in real time
 * Provides dynamic risk scoring
 
+## Adaptive Decision Engine (Context-Aware Security)
+
+The system dynamically adjusts its sensitivity based on the user's physical state and environment:
+
+### 1. Traveling (Travel Mode)
+Uses Variance Analysis on accelerometer data to identify the user's environment:
+* **Detection:** Monitors motion variance over **10.0-second windows** (extreme stability to prevent false triggers from typing or grip adjustments).
+* **Stationary:** No multiplier applied (1.0x). Adjusted threshold (**5.0**) to ignore natural hand tremors and device handling jitter.
+* **Vehicle (1.8x Multiplier):** High tolerance for vibrations in cars/buses (Variance between **5.0 and 15.0**).
+* **Walking (2.5x Multiplier):** Adjusts for rhythmic gait patterns (Variance above **15.0**).
+
+### 2. Fractured / Disabled Users (Injury Mode)
+Provides accessibility support for physical limitations:
+* **Action:** Applies a **3.0x Multiplier** to all thresholds (Motion and Keystroke).
+* **Benefit:** High tolerance for tremors, slower typing speeds, or shaky handling.
+* **Trigger:** Listens for a secure broadcast (`com.authsense.bank.INJURY_MODE_TOGGLE`) after user identity confirmation.
+
 ## Behavioral Biometrics
 
 The system analyzes:
 
-* Keystroke dynamics
-* Touch gestures
-* Swipe patterns
-* Accelerometer data
-* Gyroscope motion
-* Navigation behavior
+* **Keystroke Dynamics:** Speed, rhythm, and touch pressure.
+* **Motion Patterns:** Accelerometer and Gyroscope signatures.
+* **Navigation Behavior:** How the user interacts with banking features.
 
 ## AI-Based Anomaly Detection
 
-* Uses an LSTM Autoencoder model
-* Learns normal behavioral patterns
-* Detects deviations using reconstruction error
+* Uses an **LSTM-CNN** model.
+* Learns normal behavioral patterns.
+* Detects deviations using reconstruction error (MSE).
 
 ## Adaptive Security Response
 
 Depending on risk level:
 
-* Low Risk → Silent monitoring
-* Medium Risk → OTP/Biometric re-authentication
-* High Risk → Session lock + alerts
+* **Low Risk:** Silent monitoring.
+* **Medium Risk:** Unusual activity notification and transaction restrictions.
+* **High Risk:** Immediate account lock and password reset requirement.
 
 ## Lightweight Mobile Deployment
 
-* ONNX/TensorFlow Lite optimized model
-* Final model size: ~37.9 KB
-* Designed for real-time Android execution
-
-## Privacy-Focused
-
-* On-device inference
-* Minimal data sharing
-* Anonymous risk scoring
+* ONNX optimized model (~37.9 KB).
+* Designed for real-time inference with minimal battery impact.
 
 ---
 
@@ -72,75 +79,34 @@ Depending on risk level:
 
 ## 1. Behavioral Data Collection
 
-The app continuously captures:
-
-* Typing speed and rhythm
-* Tap/swipe pressure
-* Device tilt and handling
-* Motion sensor patterns
-* App navigation flow
-* Context-aware signals
+The app continuously captures sensor data and touch events in the background, specifically tailored for banking environments.
 
 ## 2. Data Preprocessing
 
-The collected sensor data is:
-
-* Segmented into 30-second windows
-* Downsampled from 100Hz to 10Hz
-* Normalized to a 0–1 range
+* Segmented into 300-sample windows.
+* Downsampled to 10Hz.
+* Normalized using user-specific scaler values stored in `lstm_cnn_meta.json`.
 
 ## 3. Model Training
 
-An LSTM Autoencoder is trained using:
-
-* HMOG dataset
-* Touchalytics dataset
-
-The model learns the user’s normal behavior and identifies anomalies using reconstruction loss.
+An **LSTM-CNN** architecture is utilized to capture both sequential dependencies (LSTM) and local spatial patterns (CNN) in movement and typing.
 
 ## 4. Real-Time Inference
 
-The trained ONNX/TFLite model runs directly on Android devices and computes:
-
-* Mean Squared Error (MSE)
-* Dynamic anomaly score
-* Risk classification
-
-## 5. Adaptive Response Engine
-
-Based on anomaly severity:
-
-* Continue monitoring
-* Trigger re-authentication
-* Lock sensitive operations
+The model calculates a reconstruction Mean Squared Error (MSE). If the MSE (scaled by **Adaptive Multipliers**) exceeds the personalized threshold, the risk score increases.
 
 ---
 
 # Tech Stack
 
 ## Mobile Application
-
-* Kotlin
+* **Java**
 * Android Studio
+* Android Sensor API
 
 ## Machine Learning
-
-* Python
-* TensorFlow
-* LSTM Autoencoder
-* ONNX Runtime
-* TensorFlow Lite
-
-## Sensors & Data
-
-* Accelerometer
-* Gyroscope
-* Touch interaction APIs
-
-## Datasets
-
-* HMOG Dataset
-* Touchalytics Dataset
+* Python (TensorFlow/Keras)
+* **ONNX Runtime** (for mobile inference)
 
 ---
 
@@ -149,211 +115,49 @@ Based on anomaly severity:
 ## Training Strategy
 
 ### Phase 1 – Generalized Training
-
-The model is initially trained using public datasets containing behavioral patterns from 100+ users.
-
-Behavioral features learned:
-
-* Keystroke latency
-* Swipe gestures
-* Motion dynamics
-* Device handling patterns
+The model is pre-trained on large-scale behavioral datasets (HMOG, Touchalytics) to understand "human-like" interaction.
 
 ### Phase 2 – Personalization
-
-The app collects limited user-specific data (20–30 minutes) and fine-tunes the model locally for personalized authentication.
-
-This improves:
-
-* Accuracy
-* Adaptability
-* User-specific behavior recognition
+The app collects user-specific data for **5 minutes** upon first use. This establishes a baseline for speed, pressure, and handling, creating a unique cryptographic-like behavioral profile.
 
 ---
 
 # Model Details
 
-## LSTM Autoencoder
-
-The model:
-
-* Learns sequential behavioral patterns
-* Captures temporal dependencies
-* Uses reconstruction error for anomaly detection
+## LSTM-CNN
+The model is optimized to detect "Out-of-Distribution" behavior.
 
 ### Input Features
-
 * Accelerometer X/Y/Z
 * Gyroscope X/Y/Z
 
 ### Detection Logic
+The base threshold is defined in `lstm_cnn_meta.json`:
+`lstm_cnn_threshold`: 0.005
 
-If reconstruction MSE exceeds threshold:
-
-MSE > 0.005
-
-→ User behavior is flagged as anomalous.
-
-### Performance
-
-* ~89% authentication accuracy
-* Lightweight edge deployment
-* Real-time inference support
-
----
-
-# Project Workflow
-
-1. User logs into banking application
-2. App continuously monitors behavioral signals
-3. Sensor windows are processed every 30 seconds
-4. AI model calculates anomaly score
-5. Risk level is generated
-6. Security response is triggered dynamically
-
----
-
-# Mobile Application Features
-
-## Real-Time Monitoring
-
-Continuously tracks:
-
-* Motion patterns
-* Typing behavior
-* Gesture interactions
-
-## Anomaly Alert Screen
-
-When suspicious activity is detected:
-
-* User receives a full-screen warning
-* Can secure the account immediately
-* Can dismiss false positives
-
-## Background Detection Engine
-
-* Lightweight execution
-* Minimal CPU usage
-* Battery-efficient adaptive sampling
-
----
-
-# Performance Optimization
-
-## Battery Efficiency
-
-* Adaptive sensor sampling
-* 100Hz → 10Hz downsampling during low-risk states
-
-## Resource Usage
-
-* < 3% CPU usage
-* Compact ONNX/TFLite model
-* Optimized for mid-range Android devices
-
----
-
-# Privacy & Security
-
-* On-device behavioral processing
-* No raw behavioral data uploaded
-* Anonymous risk scoring
-* Privacy-preserving architecture
-
----
-
-# Edge Cases Considered
-
-## Elderly & Differently-Abled Users
-
-* Adjustable sensitivity thresholds
-* Support for assistive input methods
-* Reduced false positives
-
-## Duress Scenarios
-
-* Hidden panic gestures
-* Silent security triggers
-
----
-
-# Future Enhancements
-
-* Personalized continual learning
-* Federated learning integration
-* Multi-device behavioral synchronization
-* Advanced contextual authentication
-* Cloud-assisted threat intelligence
-
----
-
-# Research Inspiration
-
-The project builds upon recent research in:
-
-* Reinforcement learning-based authentication
-* Behavioral biometrics
-* Continuous mobile authentication
-* Deep learning anomaly detection systems
+This is dynamically adjusted by the **Adaptive Decision Engine** to reduce false positives while walking (2.5x) or if Injury Mode is active (3.0x).
 
 ---
 
 # Installation
 
 ## Clone the Repository
-
 ```bash
 git clone https://github.com/UnisysUIP/2026-AuthSense-An-Intelligent-Adaptive-Continuous-Behavior-Based-Authentication-System-for-Secure
 cd AuthSense
 ```
 
 ## Open in Android Studio
-
-* Import the project
-* Sync Gradle dependencies
-* Run on Android device/emulator
-
----
-
-# Requirements
-
-## Android
-
-* Android Studio
-* Android SDK
-* Minimum Android version: Android 8+
-
-## Python Environment
-
-```bash
-pip install tensorflow numpy pandas scikit-learn onnxruntime
-```
-
----
-
-# Demo Scenario
-
-### Legitimate User
-
-* Normal behavioral patterns detected
-* Low risk score
-* Session continues normally
-
-### Unauthorized User
-
-* Behavioral mismatch detected
-* High anomaly score
-* Security alert triggered
+* Import the project.
+* Sync Gradle dependencies.
+* Deploy to a device running Android 8.0 or higher.
 
 ---
 
 # Contributors
-
 * Team AuthSense
 
 ---
 
 # License
-
 This project is developed for research and educational purposes.
