@@ -108,7 +108,6 @@ public class SensorService extends Service implements SensorEventListener, TextT
                 isInjuryMode = intent.getBooleanExtra("active", false);
                 Log.i(TAG, "🩹 Injury Mode Toggled: " + (isInjuryMode ? "ENABLED (3.0x Multiplier)" : "DISABLED"));
             }
-            }
         }
     };
 
@@ -117,6 +116,7 @@ public class SensorService extends Service implements SensorEventListener, TextT
         super.onCreate();
         SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
         currentUserEmail = prefs.getString("user_email", "unknown_user");
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
 
         try {
             modelManager = new ModelManager(this);
@@ -129,7 +129,7 @@ public class SensorService extends Service implements SensorEventListener, TextT
         behaviorBaseline = new BehaviorBaseline(this, currentUserEmail);
         keystrokeTracker = new KeystrokeTracker();
         
-        if (!behaviorBaseline.isBaselineComplete()) {
+        if (!behaviorBaseline.isBaselineComplete() && !isHoneypot) {
             isCollectingBaseline = true;
             learningStartTime = System.currentTimeMillis();
             mainHandler.post(() -> Toast.makeText(this, "Learning: 5-minute countdown started.", Toast.LENGTH_LONG).show());
@@ -386,6 +386,7 @@ public class SensorService extends Service implements SensorEventListener, TextT
 
     private void warnUser(boolean isUrgent) {
         SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        if (prefs.getBoolean("is_honeypot", false)) return;
         
         if (isUrgent) {
             Log.i(TAG, "🔒 Setting transaction_blocked = true");
@@ -426,10 +427,12 @@ public class SensorService extends Service implements SensorEventListener, TextT
     }
 
     private void lockSystem() {
+        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        if (prefs.getBoolean("is_honeypot", false)) return;
+        
         if (isLocked) return;
         isLocked = true;
         
-        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         
         // Activate Honeypot for this specific user
@@ -438,7 +441,8 @@ public class SensorService extends Service implements SensorEventListener, TextT
         String currentPass = prefs.getString("pass_" + currentUserEmail, "");
         editor.putString("old_pass_" + currentUserEmail, currentPass);
         
-        editor.putBoolean("is_logged_in", false);
+        editor.putBoolean("is_logged_in", true);
+        editor.putBoolean("is_honeypot", true); // Transition to fake session immediately
         editor.commit();
 
         // Use custom scheme for more reliable deep linking in dev environment

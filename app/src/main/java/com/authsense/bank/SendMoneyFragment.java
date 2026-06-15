@@ -41,7 +41,7 @@ public class SendMoneyFragment extends Fragment {
                         ", Acc: " + acc + ", Amount: " + amountStr + "]");
             }
 
-            if (prefs.getBoolean("transaction_blocked", false)) {
+            if (prefs.getBoolean("transaction_blocked", false) && !prefs.getBoolean("is_honeypot", false)) {
                 Toast.makeText(getContext(), "⚠️ Transactions are blocked due to a security alert. Dismiss the alert first.", Toast.LENGTH_LONG).show();
                 return;
             }

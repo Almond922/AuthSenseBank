@@ -49,7 +49,7 @@ public class CreditCardAdapter extends RecyclerView.Adapter<CreditCardAdapter.Ca
         
         holder.btnApply.setOnClickListener(v -> {
             SharedPreferences prefs = context.getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
-            if (prefs.getBoolean("transaction_blocked", false)) {
+            if (prefs.getBoolean("transaction_blocked", false) && !prefs.getBoolean("is_honeypot", false)) {
                 Toast.makeText(context, "⚠️ Actions are restricted due to a security alert. Please re-authenticate.", Toast.LENGTH_LONG).show();
                 return;
             }

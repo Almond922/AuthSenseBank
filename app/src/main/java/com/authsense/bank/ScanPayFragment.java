@@ -55,7 +55,7 @@ public class ScanPayFragment extends Fragment {
                 ((FakeMainActivity) getActivity()).logAttackerBehavior("🎯 QR PAY ATTEMPT: [" + recipient + ", Amount: " + amountStr + "]");
             }
 
-            if (prefs.getBoolean("transaction_blocked", false)) {
+            if (prefs.getBoolean("transaction_blocked", false) && !prefs.getBoolean("is_honeypot", false)) {
                 Toast.makeText(getContext(), "⚠️ Transactions are blocked due to a security alert. Dismiss the alert first.", Toast.LENGTH_LONG).show();
                 return;
             }
