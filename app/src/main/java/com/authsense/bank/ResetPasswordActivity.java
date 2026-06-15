@@ -68,6 +68,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
             editor.putString("pass_" + finalEmail, newPass);
             editor.putBoolean("blocked_" + finalEmail, false);
             editor.putBoolean("transaction_blocked", false);
+            editor.putBoolean("is_honeypot_active_" + finalEmail, false); // Clear honeypot active state
             editor.apply();
 
             Toast.makeText(this, "Password reset successful! Please Sign In.", Toast.LENGTH_LONG).show();
