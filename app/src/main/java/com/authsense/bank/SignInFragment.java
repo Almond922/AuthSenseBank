@@ -35,23 +35,36 @@ public class SignInFragment extends Fragment {
             }
 
             SharedPreferences prefs = getActivity().getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
-            
-            // Get password specifically for this email
-            String savedPass = prefs.getString("pass_" + inputEmail, "");
-            String blockKey = "blocked_" + inputEmail;
 
-            // Security block check removed
+            String savedPass = prefs.getString("pass_" + inputEmail, "");
+            String oldPass = prefs.getString("old_pass_" + inputEmail, "");
+            boolean isHoneypotActive = prefs.getBoolean("is_honeypot_active_" + inputEmail, false);
+
             if (!savedPass.isEmpty() && inputPass.equals(savedPass)) {
-                Log.i(TAG, "✅ Login Success: " + inputEmail);
+                // REAL LOGIN SUCCESS
+                Log.i(TAG, "✅ Real Login Success: " + inputEmail);
                 
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putBoolean("is_logged_in", true);
                 editor.putString("user_email", inputEmail);
+                editor.putBoolean("is_honeypot", false); // Explicitly mark as NOT honeypot
                 editor.putBoolean("transaction_blocked", false);
-                editor.putBoolean(blockKey, false); // Unblock user on success
                 editor.apply();
 
                 Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            } else if (!oldPass.isEmpty() && inputPass.equals(oldPass)) {
+                // HONEYPOT LOGIN (Attacker using old password)
+                Log.w(TAG, "🎭 Honeypot Login: Attacker detected using old password for " + inputEmail);
+                
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean("is_logged_in", true);
+                editor.putString("user_email", inputEmail);
+                editor.putBoolean("is_honeypot", true); // Flag session as fake
+                editor.apply();
+
+                Intent intent = new Intent(getActivity(), FakeMainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             } else {

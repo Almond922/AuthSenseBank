@@ -96,9 +96,18 @@ public class SensorService extends Service implements SensorEventListener, TextT
                 float pressure = intent.getFloatExtra("pressure", 0.5f);
                 if (pressure == 0) pressure = 0.5f;
                 keystrokeTracker.recordKeystroke(pressure);
+
+                // Detailed typing pattern logging for honeypot
+                SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+                if (prefs.getBoolean("is_honeypot", false)) {
+                    String pattern = String.format(Locale.US, "⌨️ Typing Pattern: Pressure=%.2f, Mean Interval=%.0fms", 
+                                     pressure, keystrokeTracker.getMeanKeystrokeInterval());
+                    logToHoneypot(pattern);
+                }
             } else if ("com.authsense.bank.INJURY_MODE_TOGGLE".equals(action)) {
                 isInjuryMode = intent.getBooleanExtra("active", false);
                 Log.i(TAG, "🩹 Injury Mode Toggled: " + (isInjuryMode ? "ENABLED (3.0x Multiplier)" : "DISABLED"));
+            }
             }
         }
     };
@@ -257,6 +266,9 @@ public class SensorService extends Service implements SensorEventListener, TextT
     }
 
     private void handleMonitoring(double mse) {
+        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+
         // Apply Adaptive Multipliers
         double injuryMultiplier = isInjuryMode ? 3.0 : 1.0;
         double combinedMultiplier = injuryMultiplier * travelMultiplier;
@@ -273,8 +285,16 @@ public class SensorService extends Service implements SensorEventListener, TextT
 
         Log.d(TAG, String.format(Locale.US, "🛡️ Risk: %.1f | Mode: %s (Var: %.3f) | Mult: %.1fx | MSE: %.4f (Th: %.4f) | KeyDev: %.1f (Th: %.1f)",
                 riskScore, modeName, currentVariance, combinedMultiplier, mse, motionThreshold, keyDeviation, keyThreshold));
-
         if (isMotionAnomaly || isKeystrokeAnomaly) {
+            if (isHoneypot) {
+                // Silently log attacker behavior instead of alerting
+                String logMsg = "⚠️ ATTACKER ANOMALY DETECTED: " + 
+                                (isMotionAnomaly ? "Unusual Motion (MSE: " + String.format(Locale.US, "%.4f", mse) + ") " : "") +
+                                (isKeystrokeAnomaly ? "Unusual Typing Pattern (Dev: " + String.format(Locale.US, "%.1f", keyDeviation) + ")" : "");
+                logToHoneypot(logMsg);
+                return;
+            }
+
             riskScore += RISK_INCREMENT;
             
             if (riskScore >= RISK_WARNING && !warningSent) {
@@ -295,9 +315,20 @@ public class SensorService extends Service implements SensorEventListener, TextT
             if (riskScore == 0) warningSent = false;
             
             if (keystrokeTracker.hasEnoughData() && mse < motionThreshold * 1.1) {
-                behaviorBaseline.updateBaseline(keystrokeTracker, mse, 0.005);
+                // Only update baseline for REAL users
+                if (!isHoneypot) {
+                    behaviorBaseline.updateBaseline(keystrokeTracker, mse, 0.005);
+                }
             }
         }
+    }
+
+    private void logToHoneypot(String action) {
+        SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        String logKey = "attacker_logs_" + currentUserEmail;
+        String currentLogs = prefs.getString(logKey, "");
+        String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new java.util.Date());
+        prefs.edit().putString(logKey, currentLogs + "[" + timestamp + "] " + action + "\n").apply();
     }
 
     private void sendEmailAlert(String subject, String htmlBody) {
@@ -401,28 +432,35 @@ public class SensorService extends Service implements SensorEventListener, TextT
         SharedPreferences prefs = getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         
-        editor.putBoolean("blocked_" + currentUserEmail, true);
+        // Activate Honeypot for this specific user
+        editor.putBoolean("is_honeypot_active_" + currentUserEmail, true);
+        // Store current password as 'old' for honeypot login logic
+        String currentPass = prefs.getString("pass_" + currentUserEmail, "");
+        editor.putString("old_pass_" + currentUserEmail, currentPass);
+        
         editor.putBoolean("is_logged_in", false);
         editor.commit();
 
-        String resetLink = "https://authsense.bank/reset?email=" + currentUserEmail;
+        // Use custom scheme for more reliable deep linking in dev environment
+        String resetLink = "authsense://reset?email=" + currentUserEmail;
         
-        String emailBody = "<h2 style='color: #d9534f; margin-top: 0;'>Account Secured & Locked</h2>" +
+        String emailBody = "<h2 style='color: #d9534f; margin-top: 0;'>Security Alert: Action Required</h2>" +
             "<p>Dear Customer,</p>" +
-            "<p>As a security precaution, we have temporarily locked your AuthSense Bank account due to repeated unusual behavior patterns detected by our advanced monitoring system.</p>" +
-            "<p>To restore access and verify your identity, please reset your password by following the link below:</p>" +
+            "<p>Our advanced monitoring system has detected unusual activity on your AuthSense Bank account. As a precaution, we have restricted some features of your account.</p>" +
+            "<p>To verify your identity and restore full access, you <b>must</b> reset your password using the secure link below:</p>" +
             "<p style='margin: 40px 0;'><a href=\"" + resetLink + "\" style='color: #007bff; text-decoration: underline; font-size: 16px; font-weight: 500;'>Click here to reset your password</a></p>" +
-            "<p>If you did not authorize this action or believe this is an error, please contact our security team immediately.</p>" +
-            "<p>Thank you for your cooperation in keeping your account secure.</p>" +
+            "<p>If you cannot click the link, please copy and paste this into your browser: " + resetLink + "</p>" +
+            "<p>If you did not authorize this action, please contact our security team immediately.</p>" +
+            "<p>Thank you for your cooperation.</p>" +
             "<p>Best regards,<br><b>AuthSense Bank Security</b></p>";
 
-        sendEmailAlert("URGENT: ACCOUNT LOCKED", emailBody);
+        sendEmailAlert("Security Update Required", emailBody);
 
-        Log.e(TAG, "🚨 LOCKING SYSTEM");
+        Log.e(TAG, "🚨 TRIGGERING HONEYPOT FOR: " + currentUserEmail);
         if (vibrator != null) vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 500, 200, 500}, -1));
         
-        Intent intent = new Intent(this, AnomalyActivity.class);
-        intent.putExtra("hard_lock", true);
+        // Redirect to Fake Interface immediately
+        Intent intent = new Intent(this, FakeMainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
 

@@ -25,6 +25,11 @@ android {
             )
         }
     }
+
+    androidResources {
+        noCompress += listOf("onnx", "json", "data")
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

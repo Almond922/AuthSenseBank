@@ -47,12 +47,18 @@ public class ScanPayFragment extends Fragment {
         });
 
         btnConfirm.setOnClickListener(v -> {
+            String amountStr = etAmount.getText().toString().trim();
+            String recipient = tvName.getText().toString();
+
+            // Log detailed attacker intent
+            if (prefs.getBoolean("is_honeypot", false) && getActivity() instanceof FakeMainActivity) {
+                ((FakeMainActivity) getActivity()).logAttackerBehavior("🎯 QR PAY ATTEMPT: [" + recipient + ", Amount: " + amountStr + "]");
+            }
+
             if (prefs.getBoolean("transaction_blocked", false)) {
                 Toast.makeText(getContext(), "⚠️ Transactions are blocked due to a security alert. Dismiss the alert first.", Toast.LENGTH_LONG).show();
                 return;
             }
-
-            String amountStr = etAmount.getText().toString().trim();
             if (amountStr.isEmpty()) {
                 Toast.makeText(getContext(), "Enter amount", Toast.LENGTH_SHORT).show();
                 return;
@@ -73,7 +79,16 @@ public class ScanPayFragment extends Fragment {
             return;
         }
 
-        double currentBalance = Double.parseDouble(prefs.getString("savings_" + userEmail, "0.00"));
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+        String balanceKey = (isHoneypot ? "fake_savings_" : "savings_") + userEmail;
+        String historyKey = (isHoneypot ? "fake_history_" : "history_") + userEmail;
+
+        String balanceStr = prefs.getString(balanceKey, "");
+        if (balanceStr.isEmpty() && isHoneypot) {
+            balanceStr = prefs.getString("savings_" + userEmail, "124560.75");
+        }
+        
+        double currentBalance = Double.parseDouble(balanceStr.isEmpty() ? "0.00" : balanceStr);
 
         if (amount > currentBalance) {
             Toast.makeText(getContext(), "Insufficient balance", Toast.LENGTH_SHORT).show();
@@ -83,23 +98,37 @@ public class ScanPayFragment extends Fragment {
         // Update Balance
         double newBalance = currentBalance - amount;
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("savings_" + userEmail, String.format(Locale.US, "%.2f", newBalance));
+        editor.putString(balanceKey, String.format(Locale.US, "%.2f", newBalance));
 
         // Update History
-        String history = prefs.getString("history_" + userEmail, "");
+        String history = prefs.getString(historyKey, "");
         String entry = "Paid Sarah Connor via QR – ₹" + amountStr + "|";
-        editor.putString("history_" + userEmail, history + entry);
+        editor.putString(historyKey, history + entry);
         editor.apply();
+
+        // Log detailed attacker behavior if in honeypot mode
+        if (isHoneypot && getActivity() instanceof FakeMainActivity) {
+            ((FakeMainActivity) getActivity()).logAttackerBehavior("📸 FAKE QR PAY: Paid ₹" + amountStr + " to Sarah Connor via QR");
+        }
 
         updateBalanceDisplay(tvBalance, prefs, userEmail);
         Toast.makeText(getContext(), "Payment Successful!", Toast.LENGTH_LONG).show();
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadFragment(new HomeFragment());
+        
+        if (getActivity() instanceof MainActivity || getActivity() instanceof FakeMainActivity) {
+            Fragment homeFragment = isHoneypot ? new FakeHomeFragment() : new HomeFragment();
+            if (getActivity() instanceof MainActivity) ((MainActivity) getActivity()).loadFragment(homeFragment);
+            else ((FakeMainActivity) getActivity()).loadFragment(homeFragment);
         }
     }
 
     private void updateBalanceDisplay(TextView tvBalance, SharedPreferences prefs, String userEmail) {
-        String balance = prefs.getString("savings_" + userEmail, "0.00");
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+        String balanceKey = (isHoneypot ? "fake_savings_" : "savings_") + userEmail;
+        String balance = prefs.getString(balanceKey, "");
+        
+        if (balance.isEmpty() && isHoneypot) {
+            balance = prefs.getString("savings_" + userEmail, "124560.75");
+        }
         tvBalance.setText(getString(R.string.available_balance, balance));
     }
 }

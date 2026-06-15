@@ -41,6 +41,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".FakeMainActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".NewsDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />

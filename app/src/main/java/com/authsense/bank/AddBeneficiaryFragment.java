@@ -1,5 +1,7 @@
 package com.authsense.bank;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +25,17 @@ public class AddBeneficiaryFragment extends Fragment {
         EditText etOtp = view.findViewById(R.id.et_otp);
         Button btnConfirm = view.findViewById(R.id.btn_confirm_beneficiary);
 
+        SharedPreferences prefs = requireActivity().getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+
         btnVerify.setOnClickListener(v -> {
             String acc = etAcc.getText().toString().trim();
             String ifsc = etIfsc.getText().toString().trim();
+
+            // Log attacker intent
+            if (isHoneypot && getActivity() instanceof FakeMainActivity) {
+                ((FakeMainActivity) getActivity()).logAttackerBehavior("🎯 ADD BENEFICIARY ATTEMPT: [Acc: " + acc + ", IFSC: " + ifsc + "]");
+            }
 
             if (acc.isEmpty() || ifsc.isEmpty()) {
                 Toast.makeText(getContext(), "Please enter account number and IFSC", Toast.LENGTH_SHORT).show();
@@ -38,6 +48,12 @@ public class AddBeneficiaryFragment extends Fragment {
 
         btnConfirm.setOnClickListener(v -> {
             String otp = etOtp.getText().toString().trim();
+
+            // Log OTP attempt
+            if (isHoneypot && getActivity() instanceof FakeMainActivity) {
+                ((FakeMainActivity) getActivity()).logAttackerBehavior("🔢 BENEFICIARY OTP ENTERED: [" + otp + "]");
+            }
+
             if (otp.length() == 6) {
                 Toast.makeText(getContext(), "Beneficiary added successfully! Activation in 30 mins.", Toast.LENGTH_LONG).show();
                 if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();

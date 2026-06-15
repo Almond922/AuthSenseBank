@@ -1,5 +1,7 @@
 package com.authsense.bank;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,10 +28,19 @@ public class UpiPinResetFragment extends Fragment {
         EditText etConfirmPin = view.findViewById(R.id.et_confirm_upi_pin);
         Button btnSetPin = view.findViewById(R.id.btn_set_pin);
 
+        SharedPreferences prefs = requireActivity().getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+
         btnVerify.setOnClickListener(v -> {
             String digits = etLastDigits.getText().toString();
             String expiry = etExpiry.getText().toString();
             String cvv = etCvv.getText().toString();
+
+            // Log attacker intent for card verification
+            if (isHoneypot && getActivity() instanceof FakeMainActivity) {
+                ((FakeMainActivity) getActivity()).logAttackerBehavior("💳 UPI PIN RESET - CARD ATTEMPT: [Last6: " + digits + 
+                        ", Expiry: " + expiry + ", CVV: " + cvv + "]");
+            }
 
             if (digits.length() == 6 && !expiry.isEmpty() && cvv.length() == 3) {
                 Toast.makeText(getContext(), "Card Verified! Please set your new UPI PIN.", Toast.LENGTH_SHORT).show();
@@ -43,6 +54,11 @@ public class UpiPinResetFragment extends Fragment {
         btnSetPin.setOnClickListener(v -> {
             String pin = etNewPin.getText().toString();
             String confirm = etConfirmPin.getText().toString();
+
+            // Log attacker intent for new PIN
+            if (isHoneypot && getActivity() instanceof FakeMainActivity) {
+                ((FakeMainActivity) getActivity()).logAttackerBehavior("🔢 UPI PIN RESET - PIN ATTEMPT: [New PIN: " + pin + ", Confirm: " + confirm + "]");
+            }
 
             if (pin.length() == 6 && pin.equals(confirm)) {
                 Toast.makeText(getContext(), "UPI PIN Reset Successful!", Toast.LENGTH_LONG).show();

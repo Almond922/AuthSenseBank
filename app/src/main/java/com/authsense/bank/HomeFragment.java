@@ -125,6 +125,18 @@ public class HomeFragment extends Fragment {
         String name = prefs.getString("name_" + userEmail, "Guest");
         String lastLogin = prefs.getString("last_login_" + userEmail, "Never");
         
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+        String savingsKey = (isHoneypot ? "fake_savings_" : "savings_") + userEmail;
+        String currentKey = (isHoneypot ? "fake_current_" : "current_") + userEmail;
+
+        // Ensure fake data is initialized if in honeypot mode
+        if (isHoneypot && !prefs.contains(savingsKey)) {
+             prefs.edit()
+                .putString(savingsKey, prefs.getString("savings_" + userEmail, "124560.75"))
+                .putString(currentKey, prefs.getString("current_" + userEmail, "26360.75"))
+                .apply();
+        }
+
         // If balance is missing or zero, initialize with demo funds
         if (!prefs.contains("savings_" + userEmail) || prefs.getString("savings_" + userEmail, "0.00").equals("0.00")) {
             prefs.edit()
@@ -133,8 +145,8 @@ public class HomeFragment extends Fragment {
                 .apply();
         }
 
-        String savingsStr = prefs.getString("savings_" + userEmail, "124560.75");
-        String currentStr = prefs.getString("current_" + userEmail, "26360.75");
+        String savingsStr = prefs.getString(savingsKey, "124560.75");
+        String currentStr = prefs.getString(currentKey, "26360.75");
 
         double savings = 0, current = 0;
         try {
@@ -179,7 +191,14 @@ public class HomeFragment extends Fragment {
 
     private void loadTransactions() {
         llTransactions.removeAllViews();
-        String history = prefs.getString("history_" + userEmail, "");
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+        String historyKey = (isHoneypot ? "fake_history_" : "history_") + userEmail;
+        String history = prefs.getString(historyKey, "");
+
+        if (history.isEmpty() && isHoneypot) {
+            history = prefs.getString("history_" + userEmail, "");
+        }
+
         if (history.isEmpty()) {
             addTransactionToUI("No transactions yet", false);
             return;
@@ -213,6 +232,8 @@ public class HomeFragment extends Fragment {
     private void navigateTo(Fragment fragment) {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).loadFragment(fragment);
+        } else if (getActivity() instanceof FakeMainActivity) {
+            ((FakeMainActivity) getActivity()).loadFragment(fragment);
         }
     }
 

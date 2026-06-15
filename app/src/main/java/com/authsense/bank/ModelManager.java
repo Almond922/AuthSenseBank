@@ -20,9 +20,10 @@ public class ModelManager {
     private float[] scalerMax = new float[0];
 
     public ModelManager(Context context) {
+        Context appContext = context.getApplicationContext();
         try {
             // 1. Load Metadata
-            String jsonString = loadJSONFromAsset(context, "lstm_cnn_meta.json");
+            String jsonString = loadJSONFromAsset(appContext, "lstm_cnn_meta.json");
             if (jsonString != null) {
                 JSONObject jsonObject = new JSONObject(jsonString);
 
@@ -51,12 +52,11 @@ public class ModelManager {
             env = OrtEnvironment.getEnvironment();
             
             // Copy the model
-            String modelPath = copyAssetToInternalStorage(context, "lstm_cnn.onnx", "lstm_cnn.onnx");
+            String modelPath = copyAssetToInternalStorage(appContext, "lstm_cnn.onnx", "lstm_cnn.onnx");
             
             // CRITICAL: The .onnx file internally expects its data to be named "lstm_ae.onnx.data"
-            // We copy our "lstm_cnn.onnx.data" asset to the filename the model structure is hardcoded to look for.
             try {
-                copyAssetToInternalStorage(context, "lstm_cnn.onnx.data", "lstm_ae.onnx.data");
+                copyAssetToInternalStorage(appContext, "lstm_cnn.onnx.data", "lstm_ae.onnx.data");
             } catch (Exception e) {
                 Log.w(TAG, "Data file copy warning: " + e.getMessage());
             }
@@ -73,7 +73,6 @@ public class ModelManager {
 
     public float scaleValue(float value, int index) {
         if (scalerMin == null || index >= scalerMin.length || index >= scalerMax.length) return value;
-        // Min-Max Scaling formula: (x - min) / (max - min)
         float denom = scalerMax[index] - scalerMin[index];
         if (denom == 0) return 0;
         return (value - scalerMin[index]) / denom;
@@ -95,9 +94,13 @@ public class ModelManager {
     private String loadJSONFromAsset(Context context, String fileName) {
         try (InputStream is = context.getAssets().open(fileName)) {
             int size = is.available();
-            byte[] buffer = new byte[size];
-            int read = is.read(buffer);
-            return new String(buffer, 0, read, StandardCharsets.UTF_8);
+            byte[] buffer = new byte[size > 0 ? size : 32768];
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            int read;
+            while ((read = is.read(buffer)) != -1) {
+                baos.write(buffer, 0, read);
+            }
+            return baos.toString(StandardCharsets.UTF_8.name());
         } catch (Exception e) {
             Log.e(TAG, "Error loading JSON: " + fileName, e);
             return null;

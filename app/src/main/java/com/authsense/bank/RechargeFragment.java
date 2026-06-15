@@ -38,14 +38,20 @@ public class RechargeFragment extends Fragment {
         spinner.setAdapter(adapter);
 
         btnRecharge.setOnClickListener(v -> {
+            String phone = etPhone.getText().toString().trim();
+            String operator = spinner.getSelectedItem().toString();
+            String amountStr = etAmount.getText().toString().trim();
+
+            // Log detailed attacker intent
+            if (prefs.getBoolean("is_honeypot", false) && getActivity() instanceof FakeMainActivity) {
+                ((FakeMainActivity) getActivity()).logAttackerBehavior("🎯 RECHARGE ATTEMPT: [Phone: " + phone + 
+                        ", Operator: " + operator + ", Amount: " + amountStr + "]");
+            }
+
             if (prefs.getBoolean("transaction_blocked", false)) {
                 Toast.makeText(getContext(), "⚠️ Transactions are blocked due to a security alert. Dismiss the alert first.", Toast.LENGTH_LONG).show();
                 return;
             }
-
-            String phone = etPhone.getText().toString().trim();
-            String operator = spinner.getSelectedItem().toString();
-            String amountStr = etAmount.getText().toString().trim();
 
             if (phone.isEmpty() || amountStr.isEmpty()) {
                 Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
@@ -67,7 +73,16 @@ public class RechargeFragment extends Fragment {
             return;
         }
 
-        double currentBalance = Double.parseDouble(prefs.getString("savings_" + userEmail, "0.00"));
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+        String balanceKey = (isHoneypot ? "fake_savings_" : "savings_") + userEmail;
+        String historyKey = (isHoneypot ? "fake_history_" : "history_") + userEmail;
+
+        String balanceStr = prefs.getString(balanceKey, "");
+        if (balanceStr.isEmpty() && isHoneypot) {
+            balanceStr = prefs.getString("savings_" + userEmail, "124560.75");
+        }
+        
+        double currentBalance = Double.parseDouble(balanceStr.isEmpty() ? "0.00" : balanceStr);
 
         if (amount > currentBalance) {
             Toast.makeText(getContext(), "Insufficient balance", Toast.LENGTH_SHORT).show();
@@ -77,23 +92,37 @@ public class RechargeFragment extends Fragment {
         // Update Balance
         double newBalance = currentBalance - amount;
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("savings_" + userEmail, String.format(Locale.US, "%.2f", newBalance));
+        editor.putString(balanceKey, String.format(Locale.US, "%.2f", newBalance));
 
         // Update History
-        String history = prefs.getString("history_" + userEmail, "");
+        String history = prefs.getString(historyKey, "");
         String entry = operator + " Recharge (" + phone + ") – ₹" + amountStr + "|";
-        editor.putString("history_" + userEmail, history + entry);
+        editor.putString(historyKey, history + entry);
         editor.apply();
+
+        // Log detailed attacker behavior if in honeypot mode
+        if (isHoneypot && getActivity() instanceof FakeMainActivity) {
+            ((FakeMainActivity) getActivity()).logAttackerBehavior("📱 FAKE RECHARGE: Recharged " + phone + " (" + operator + ") for ₹" + amountStr);
+        }
 
         updateBalanceDisplay(tvBalance, prefs, userEmail);
         Toast.makeText(getContext(), "Recharge Successful!", Toast.LENGTH_LONG).show();
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadFragment(new HomeFragment());
+        
+        if (getActivity() instanceof MainActivity || getActivity() instanceof FakeMainActivity) {
+            Fragment homeFragment = isHoneypot ? new FakeHomeFragment() : new HomeFragment();
+            if (getActivity() instanceof MainActivity) ((MainActivity) getActivity()).loadFragment(homeFragment);
+            else ((FakeMainActivity) getActivity()).loadFragment(homeFragment);
         }
     }
 
     private void updateBalanceDisplay(TextView tvBalance, SharedPreferences prefs, String userEmail) {
-        String balance = prefs.getString("savings_" + userEmail, "0.00");
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+        String balanceKey = (isHoneypot ? "fake_savings_" : "savings_") + userEmail;
+        String balance = prefs.getString(balanceKey, "");
+        
+        if (balance.isEmpty() && isHoneypot) {
+            balance = prefs.getString("savings_" + userEmail, "124560.75");
+        }
         tvBalance.setText(getString(R.string.available_balance, balance));
     }
 }

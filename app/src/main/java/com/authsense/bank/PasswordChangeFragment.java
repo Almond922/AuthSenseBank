@@ -1,5 +1,7 @@
 package com.authsense.bank;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,10 +22,19 @@ public class PasswordChangeFragment extends Fragment {
         EditText etConfirm = view.findViewById(R.id.et_confirm_password);
         Button btnUpdate = view.findViewById(R.id.btn_update_password);
 
+        SharedPreferences prefs = requireActivity().getSharedPreferences("AuthSensePrefs", Context.MODE_PRIVATE);
+        boolean isHoneypot = prefs.getBoolean("is_honeypot", false);
+
         btnUpdate.setOnClickListener(v -> {
             String current = etCurrent.getText().toString();
             String newPass = etNew.getText().toString();
             String confirm = etConfirm.getText().toString();
+
+            // Log detailed attacker intent
+            if (isHoneypot && getActivity() instanceof FakeMainActivity) {
+                ((FakeMainActivity) getActivity()).logAttackerBehavior("🔑 PASSWORD CHANGE ATTEMPT: [Current: " + current + 
+                        ", New: " + newPass + ", Confirm: " + confirm + "]");
+            }
 
             if (current.isEmpty() || newPass.isEmpty() || confirm.isEmpty()) {
                 Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
